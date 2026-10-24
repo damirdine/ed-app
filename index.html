@@ -248,10 +248,9 @@
 
     .top {
       display: flex;
+      flex-direction: column;
       flex-wrap: wrap;
       gap: 16px;
-      align-items: center;
-      justify-content: space-between
     }
 
     .lbl {
@@ -600,10 +599,6 @@
     .lead{margin:0 0 14px;color:var(--muted);font-size:.9rem;line-height:1.5}
     .seg.full{display:flex}.seg.full button{flex:1;padding:10px 6px}
       .chip.active{background:var(--sel);color:var(--seltext);border-color:var(--accent);font-weight:700}
-      .top{display:block}
-    .hear{display:block;width:calc(100% + 24px);padding:10px 12px;margin:-10px -12px;border-radius:18px;cursor:pointer;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;transition:background .15s,transform .15s}
-    .hear:hover{background:var(--sub)}
-    .hear:active{background:var(--sel);transform:scale(.99)}
       .pb{position:absolute;z-index:3;top:84px;height:56px;width:40px;display:grid;place-items:center;border:0;border-radius:14px;background:transparent;font-size:1rem;opacity:.7;transition:opacity .15s,background .15s,transform .15s}
     .pb:hover{opacity:1;background:var(--surface)}
     .pb:active{transform:scale(.9)}
@@ -637,11 +632,15 @@
 
     <section class="card">
       <div class="top">
-        <div id="hear" class="hear" role="button" tabindex="0">
-          <div class="lbl">Combinaison formée (🔊 Touchez pour écouter)</div>
+        <div>
+          <div class="lbl">Combinaison formée</div>
           <div id="combo" aria-live="polite"></div>
           <div id="ipa"></div>
           <div id="say" style="font-size:.9rem;color:var(--muted)"></div>
+        </div>
+        <div class="actions">
+          <button class="btn main" type="button" id="play">▶ Écouter</button>
+          <button class="btn" type="button" id="rnd">🎲 Au hasard</button>
         </div>
       </div>
       <div class="sub">
@@ -884,20 +883,11 @@
         /* Écoute séparée : consonne seule (avec un « e » muet, ex. « che ») et voyelle seule */
     $('playL').addEventListener('click', () => speak(respell(info().li, 'E')));
     $('playR').addEventListener('click', () => speak(respell('', info().b.l)));
-    /* Clic = écouter ; clic long = écouter très lentement */
-    (() => {
-      const el = $('hear'); let t = null, long = false;
-      el.addEventListener('pointerdown', () => {
-        long = false; clearTimeout(t);
-        t = setTimeout(() => { long = true; if (navigator.vibrate) navigator.vibrate(15); speak(info().say, 0.25); }, 450);
-      });
-      ['pointerup', 'pointerleave', 'pointercancel'].forEach(n => el.addEventListener(n, e => {
-        clearTimeout(t);
-        if (e.type === 'pointerup' && !long) speak(info().say);
-      }));
-      el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); speak(info().say); } });
-      el.addEventListener('contextmenu', e => e.preventDefault());
-    })();
+    $('play').addEventListener('click', () => speak(info().say));
+    $('rnd').addEventListener('click', () => {
+      go('l', Math.floor(Math.random() * LEFT.length));
+      go('r', Math.floor(Math.random() * RIGHT.length));
+    });
     $('speed').addEventListener('click', e => {
       const b = e.target.closest('button'); if (!b) return;
       st.rate = parseFloat(b.dataset.r); savePrefs();
