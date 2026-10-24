@@ -599,6 +599,16 @@
     .steps li::before{content:counter(s);flex:none;width:26px;height:26px;border-radius:50%;background:var(--sel);color:var(--seltext);font-weight:700;font-size:.8rem;display:grid;place-items:center}
     .lead{margin:0 0 14px;color:var(--muted);font-size:.9rem;line-height:1.5}
     .seg.full{display:flex}.seg.full button{flex:1;padding:10px 6px}
+      .chip.active{background:var(--sel);color:var(--seltext);border-color:var(--accent);font-weight:700}
+      .top{display:block}
+    .hear{display:block;width:calc(100% + 24px);padding:10px 12px;margin:-10px -12px;border-radius:18px;cursor:pointer;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;transition:background .15s,transform .15s}
+    .hear:hover{background:var(--sub)}
+    .hear:active{background:var(--sel);transform:scale(.99)}
+      .pb{position:absolute;z-index:3;top:84px;height:56px;width:40px;display:grid;place-items:center;border:0;border-radius:14px;background:transparent;font-size:1rem;opacity:.7;transition:opacity .15s,background .15s,transform .15s}
+    .pb:hover{opacity:1;background:var(--surface)}
+    .pb:active{transform:scale(.9)}
+    .pbl{left:calc(50% - 42px)}
+    .pbr{right:2px}
   </style>
 </head>
 
@@ -620,29 +630,27 @@
         <div class="mask"></div>
         <div class="wheel" id="lw" tabindex="0" role="listbox" aria-label="Consonne ou groupe consonantique"></div>
         <div class="wheel" id="rw" tabindex="0" role="listbox" aria-label="Voyelle ou son vocalique"></div>
+        <button class="pb pbl" type="button" id="playL" aria-label="Écouter la consonne">🔊</button>
+        <button class="pb pbr" type="button" id="playR" aria-label="Écouter la voyelle">🔊</button>
       </div>
     </section>
 
     <section class="card">
       <div class="top">
-        <div>
-          <div class="lbl">Combinaison formée</div>
+        <div id="hear" class="hear" role="button" tabindex="0">
+          <div class="lbl">Combinaison formée (🔊 Touchez pour écouter)</div>
           <div id="combo" aria-live="polite"></div>
           <div id="ipa"></div>
           <div id="say" style="font-size:.9rem;color:var(--muted)"></div>
-        </div>
-        <div class="actions">
-          <button class="btn main" type="button" id="play">▶ Écouter</button>
-          <button class="btn" type="button" id="rnd">🎲 Au hasard</button>
         </div>
       </div>
       <div class="sub">
         <div class="sec">Mots exemples (touchez pour écouter)</div>
         <div class="chips" id="words"></div>
       </div>
-      <div id="histBox" hidden style="margin-top:14px">
-        <div class="sec">Dernières combinaisons</div>
-        <div class="chips" id="hist"></div>
+      <div class="sub">
+        <div class="sec" id="sameTitle">Voyelles qui font le même son</div>
+        <div class="chips" id="same"></div>
       </div>
     </section>
   </div>
@@ -698,7 +706,7 @@
 
     const WORDS = `château chameau chapeau chaise chaîne chat chaud chocolat cheval chemise chien chou bouche bouteille bateau ballon beau bureau brun brise bras blanc blé bleu cou coup cœur café cadeau cahier camion carotte cerise cerf ceinture citron cinéma cloche clé clou crabe crayon cri crêpe croix crocodile drap drôle dragon dent doigt dos fleur fleuve flamme fromage fraise français frère frite gâteau gare garçon girafe gilet glace gris grand gros grenouille guitare guerre gnome singe jardin jambe jaune jouet kilo koala lapin lait lune livre lion lundi main maison mer mouton nez nuit neige nuage orange pain papa pomme poule plume plage pluie poisson prix propre photo phoque pharmacie quatre question quai quand radio rat rouge robe riz sac sel soleil sucre scie science stylo stratégie table tête tigre train trois tronc tracteur thé théâtre thon valise vache vélo vert voiture vrai zèbre zéro zoo`.split(' ');
 
-    const st = { l: RIGHT.length && LEFT.findIndex(x => x.l === 'CH'), r: RIGHT.findIndex(x => x.l === 'EAU'), rate: 0.4, voice: null, timer: null, hist: [] };
+    const st = { l: RIGHT.length && LEFT.findIndex(x => x.l === 'CH'), r: RIGHT.findIndex(x => x.l === 'EAU'), rate: 0.4, voice: null, timer: null };
 
     function build(id, items, side) {
       const w = $(id);
@@ -754,7 +762,7 @@
     }
 
     /* Lecture phonétique : on lit les sons, pas les lettres */
-    const VW = { A: 'a', E: 'e', 'É': 'é', 'È': 'è', 'Ê': 'è', I: 'i', O: 'ô', U: 'u', Y: 'i', OU: 'ou', OI: 'oi', AI: 'è', EI: 'è', AU: 'ô', EAU: 'ô', EU: 'eu', 'ŒU': 'eu', UI: 'ui', AN: 'an', EN: 'an', ON: 'on', IN: 'in', AIN: 'in', UN: 'un' };
+    const VW = { A: 'a', E: 'e', 'É': 'é', 'È': 'è', 'Ê': 'è', I: 'i', O: 'ô', U: 'u', Y: 'i', OU: 'ou', OI: 'oua', AI: 'è', EI: 'è', AU: 'ô', EAU: 'ô', EU: 'eu', 'ŒU': 'eu', UI: 'ui', AN: 'an', EN: 'an', ON: 'on', IN: 'in', AIN: 'in', UN: 'un' };
     const CW = { '\u0283': 'ch', '\u0292': 'j', '\u0272': 'gn', '\u0281': 'r', '\u0261': 'g' };
     function respell(cons, vowelLabel) {
       const v = VW[vowelLabel] || vowelLabel.toLowerCase();
@@ -764,7 +772,7 @@
     }
 
     function info() {
-      const a = LEFT[st.l], b = RIGHT[st.r];
+      const a = LEFT[st.l] || LEFT[0], b = RIGHT[st.r] || RIGHT[0];
       const soft = 'EIÉÈÊY'.includes(b.l[0]);
       let li = a.i, rule = '';
       if (a.l === 'C' && soft) { li = 's'; rule = ' Devant E, I ou Y, le C se prononce [s].'; }
@@ -780,13 +788,14 @@
       $('combo').textContent = combo;
       $('ipa').textContent = `[${ipa}]`;
       $('say').textContent = 'Se lit : « ' + say + ' »';
+      renderSame(b);
       const low = combo.toLowerCase();
       const found = WORDS.filter(w => w.startsWith(low)).slice(0, 8);
       const box = $('words'); box.innerHTML = '';
       if (!found.length) {
         const p = document.createElement('span');
         p.style.cssText = 'font-size:.85rem;color:var(--muted)';
-        p.textContent = 'Aucun mot courant de la liste ne commence ainsi. Essayez une autre combinaison.';
+        p.textContent = 'Pas de mot courant. Essayez une autre combinaison.';
         box.appendChild(p);
       }
       found.forEach(w => {
@@ -798,21 +807,27 @@
 
     }
 
-    function settle() {
-      const { combo } = info();
-      st.hist = [combo, ...st.hist.filter(h => h !== combo)].slice(0, 8);
-      const hb = $('hist'); hb.innerHTML = '';
-      st.hist.forEach(h => {
+    function renderSame(b) {
+      $('sameTitle').textContent = `Voyelles qui font le son [${b.i}]`;
+      const box = $('same'); box.innerHTML = '';
+      const mates = RIGHT.map((v, i) => ({ v, i })).filter(x => x.v.i === b.i);
+      if (mates.length < 2) {
+        const p = document.createElement('span');
+        p.style.cssText = 'font-size:.85rem;color:var(--muted)';
+        p.textContent = 'Ce son n’a qu’une seule écriture dans la liste.';
+        box.appendChild(p);
+        return;
+      }
+      mates.forEach(({ v, i }) => {
         const c = document.createElement('button');
-        c.type = 'button'; c.className = 'chip'; c.textContent = h;
-        c.addEventListener('click', () => {
-          const x = LEFT.map(v => v.l).sort((p, q) => q.length - p.length).find(v => h.startsWith(v));
-          go('l', LEFT.findIndex(v => v.l === x));
-          go('r', RIGHT.findIndex(v => v.l === h.slice(x.length)));
-        });
-        hb.appendChild(c);
+        c.type = 'button'; c.className = 'chip' + (i === st.r ? ' active' : ''); c.textContent = v.l;
+        c.setAttribute('aria-pressed', i === st.r);
+        c.addEventListener('click', () => go('r', i));
+        box.appendChild(c);
       });
-      $('histBox').hidden = false;
+    }
+
+    function settle() {
       if ($('auto').checked && st.ready) speak(info().say);
     }
 
@@ -822,11 +837,11 @@
       const load = () => { st.voice = speechSynthesis.getVoices().find(v => v.lang.toLowerCase().startsWith('fr')) || null; };
       load(); speechSynthesis.onvoiceschanged = load;
     }
-    function speak(text) {
+    function speak(text, rate) {
       if (!('speechSynthesis' in window)) return toast('Synthèse vocale non disponible');
       speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
-      u.lang = 'fr-FR'; u.rate = st.rate;
+      u.lang = 'fr-FR'; u.rate = rate || st.rate;
       if (st.voice) u.voice = st.voice;
       speechSynthesis.speak(u);
     }
@@ -866,11 +881,23 @@
     $('close').addEventListener('click', () => dlg.close());
     dlg.addEventListener('click', e => { const r = dlg.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dlg.close(); });
     document.addEventListener('pointerdown', () => { if ('speechSynthesis' in window) speechSynthesis.speak(new SpeechSynthesisUtterance('')); }, { once: true });
-    $('play').addEventListener('click', () => speak(info().say));
-    $('rnd').addEventListener('click', () => {
-      go('l', Math.floor(Math.random() * LEFT.length));
-      go('r', Math.floor(Math.random() * RIGHT.length));
-    });
+        /* Écoute séparée : consonne seule (avec un « e » muet, ex. « che ») et voyelle seule */
+    $('playL').addEventListener('click', () => speak(respell(info().li, 'E')));
+    $('playR').addEventListener('click', () => speak(respell('', info().b.l)));
+    /* Clic = écouter ; clic long = écouter très lentement */
+    (() => {
+      const el = $('hear'); let t = null, long = false;
+      el.addEventListener('pointerdown', () => {
+        long = false; clearTimeout(t);
+        t = setTimeout(() => { long = true; if (navigator.vibrate) navigator.vibrate(15); speak(info().say, 0.25); }, 450);
+      });
+      ['pointerup', 'pointerleave', 'pointercancel'].forEach(n => el.addEventListener(n, e => {
+        clearTimeout(t);
+        if (e.type === 'pointerup' && !long) speak(info().say);
+      }));
+      el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); speak(info().say); } });
+      el.addEventListener('contextmenu', e => e.preventDefault());
+    })();
     $('speed').addEventListener('click', e => {
       const b = e.target.closest('button'); if (!b) return;
       st.rate = parseFloat(b.dataset.r); savePrefs();
@@ -879,7 +906,7 @@
     requestAnimationFrame(() => {
       go('l', st.l, true); go('r', st.r, true);
       setTimeout(() => st.ready = true, 1200);
-      st.l = st.r = -1; fx('l'); fx('r'); set('l', LEFT.findIndex(x => x.l === 'CH')); set('r', RIGHT.findIndex(x => x.l === 'EAU'));
+      fx('l'); fx('r'); set('l', LEFT.findIndex(x => x.l === 'CH')); set('r', RIGHT.findIndex(x => x.l === 'EAU'));
     });
 
     /* Installation de la PWA */
