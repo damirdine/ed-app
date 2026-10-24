@@ -1,831 +1,695 @@
-
 <!DOCTYPE html>
-<html lang="fr" class="h-full">
+<html lang="fr">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#f5f5f2">
-    <title>Atelier des Sons Français</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Atelier des sons français</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --page: #f5f5f2;
+      --surface: #fff;
+      --sub: #efefeb;
+      --text: #343a36;
+      --muted: #7b827c;
+      --border: #e3e5de;
+      --accent: #617f62;
+      --sel: #e5ebe2;
+      --seltext: #2f4a33;
+      --onaccent: #fff;
+      box-sizing: border-box;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px)
+    }
 
-    <script src="https://cdn.tailwindcss.com"></script>
+    @media (prefers-color-scheme:dark) {
+      :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --page: #1d201e;
+        --surface: #262a27;
+        --sub: #303531;
+        --text: #e5e9e4;
+        --muted: #9aa29a;
+        --border: #383e39;
+        --accent: #9bb49a;
+        --sel: #363d37;
+        --seltext: #dce8da;
+        --onaccent: #1d201e
+      }
+    }
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --page: #1d201e;
+      --surface: #262a27;
+      --sub: #303531;
+      --text: #e5e9e4;
+      --muted: #9aa29a;
+      --border: #383e39;
+      --accent: #9bb49a;
+      --sel: #363d37;
+      --seltext: #dce8da;
+      --onaccent: #1d201e
+    }
 
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif']
-                    },
-                    colors: {
-                        sage: {
-                            50: '#f0f4ef',
-                            100: '#e1e9df',
-                            200: '#c8d7c5',
-                            400: '#91ad91',
-                            500: '#789778',
-                            600: '#617f62',
-                            700: '#4d6750',
-                            800: '#354a38',
-                            900: '#253529'
-                        }
-                    }
-                }
-            }
-        };
-    </script>
+    html {
+      scroll-padding-top: env(safe-area-inset-top, 0px);
+      background: var(--page)
+    }
 
-    <style>
-        :root {
-            color-scheme: light;
-            --page: #f5f5f2;
-            --surface: #ffffff;
-            --surface-subtle: #efefeb;
-            --text: #343a36;
-            --muted: #858b85;
-            --border: #e6e7e1;
-            --accent: #789778;
-            --selection: #e5ebe2;
-            --selection-text: #405943;
-            --picker-fade: 245, 245, 242;
-        }
+    * {
+      box-sizing: border-box
+    }
 
-        .dark {
-            color-scheme: dark;
-            --page: #1d201e;
-            --surface: #262a27;
-            --surface-subtle: #303531;
-            --text: #e5e9e4;
-            --muted: #969e96;
-            --border: #383e39;
-            --accent: #9bb49a;
-            --selection: #363d37;
-            --selection-text: #dce8da;
-            --picker-fade: 29, 32, 30;
-        }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--page);
+      color: var(--text);
+      font-family: Inter, system-ui, sans-serif;
+      transition: background .18s, color .18s
+    }
 
-        * {
-            box-sizing: border-box;
-        }
+    .wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 14px 16px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px
+    }
 
-        html {
-            background: var(--page);
-        }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px
+    }
 
-        body {
-            min-height: 100%;
-            background: var(--page);
-            color: var(--text);
-            font-family: Inter, sans-serif;
-            transition: background-color 180ms ease, color 180ms ease;
-        }
+    h1 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -.01em
+    }
 
-        /* Header totalement transparent */
-        header {
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
-        }
+    .hint {
+      margin: 0;
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: center
+    }
 
-        .theme-button {
-            width: 42px;
-            height: 42px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            background: transparent;
-            color: var(--text);
-            cursor: pointer;
-            transition: background-color 160ms ease, transform 160ms ease;
-        }
+    button {
+      font: inherit;
+      color: inherit;
+      cursor: pointer
+    }
 
-        .theme-button:hover {
-            background: var(--surface-subtle);
-        }
+    button:focus-visible,
+    .wheel:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px
+    }
 
-        .theme-button:active {
-            transform: scale(.94);
-        }
+    .icon-btn {
+      width: 42px;
+      height: 42px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: transparent;
+      font-size: 1.1rem
+    }
 
-        .surface {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            box-shadow: 0 5px 22px rgba(25, 35, 25, .035);
-        }
+    .icon-btn:hover {
+      background: var(--sub)
+    }
 
-        .subtle-surface {
-            background: var(--surface-subtle);
-            border: 1px solid var(--border);
-        }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 16px;
+      box-shadow: 0 5px 22px rgba(25, 35, 25, .04)
+    }
 
-        .muted {
-            color: var(--muted);
-        }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px
+    }
 
-        .accent-text {
-            color: var(--accent);
-        }
+    @media (max-width:620px) {
+      .grid {
+        gap: 8px
+      }
 
-        .picker-scroll {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-            scroll-snap-type: y mandatory;
-            overscroll-behavior-y: contain;
-            -webkit-overflow-scrolling: touch;
-            touch-action: pan-y;
-        }
+      .card {
+        padding: 12px;
+        border-radius: 20px
+      }
+    }
 
-        .picker-scroll::-webkit-scrollbar {
-            display: none;
-        }
+    .ch {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      padding-bottom: 10px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid var(--border)
+    }
 
-        .picker-item {
-            height: 56px;
-            min-height: 56px;
-            scroll-snap-align: center;
-            scroll-snap-stop: always;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: opacity 140ms ease, transform 140ms ease;
-        }
+    .ch b {
+      font-size: .68rem;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--accent)
+    }
 
-        .picker-mask {
-            pointer-events: none;
-            background: linear-gradient(
-                to bottom,
-                rgba(var(--picker-fade), .98) 0%,
-                rgba(var(--picker-fade), 0) 34%,
-                rgba(var(--picker-fade), 0) 66%,
-                rgba(var(--picker-fade), .98) 100%
-            );
-        }
+    .badge {
+      font-size: .62rem;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 99px;
+      background: var(--sub);
+      color: var(--muted);
+      white-space: nowrap
+    }
 
-        .picker-selection {
-            position: absolute;
-            left: 8px;
-            right: 8px;
-            top: 50%;
-            height: 56px;
-            transform: translateY(-50%);
-            border-radius: 16px;
-            background: var(--selection);
-            pointer-events: none;
-            z-index: 10;
-        }
+    .well {
+      position: relative;
+      height: 224px
+    }
 
-        .picker-item .item-text {
-            color: var(--muted);
-            font-weight: 500;
-            transition: color 140ms ease;
-        }
+    .bar {
+      position: absolute;
+      left: 4px;
+      right: 4px;
+      top: 84px;
+      height: 56px;
+      border-radius: 16px;
+      background: var(--sel)
+    }
 
-        .shortcut {
-            flex: 0 0 auto;
-            min-width: 34px;
-            padding: 7px 10px;
-            border-radius: 10px;
-            background: var(--surface-subtle);
-            color: var(--text);
-            transition: background-color 150ms ease;
-        }
+    .mask {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+      background: linear-gradient(var(--surface), transparent 34%, transparent 66%, var(--surface))
+    }
 
-        .shortcut:hover {
-            background: var(--selection);
-            color: var(--selection-text);
-        }
+    .wheel {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      overflow-y: scroll;
+      padding-block: 84px;
+      scroll-snap-type: y mandatory;
+      overscroll-behavior: contain;
+      scrollbar-width: none;
+      border-radius: 16px
+    }
 
-        .listen-button {
-            background: var(--accent);
-            color: #fff;
-            transition: filter 150ms ease, transform 150ms ease;
-        }
+    .wheel::-webkit-scrollbar {
+      display: none
+    }
 
-        .listen-button:hover {
-            filter: brightness(.95);
-        }
+    .item {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      scroll-snap-align: center;
+      scroll-snap-stop: always;
+      cursor: pointer;
+      font-size: 1.7rem;
+      font-weight: 500;
+      color: var(--muted);
+      opacity: .45;
+      transform: scale(.88);
+      transition: opacity .14s, transform .14s, color .14s
+    }
 
-        .listen-button:active {
-            transform: scale(.97);
-        }
+    .item.on {
+      opacity: 1;
+      transform: scale(1.08);
+      color: var(--seltext);
+      font-weight: 750
+    }
 
-        .note-box {
-            background: var(--surface-subtle);
-            border: 1px solid var(--border);
-            color: var(--text);
-        }
+    .top {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+      justify-content: space-between
+    }
 
-        button:focus-visible {
-            outline: 2px solid var(--accent);
-            outline-offset: 3px;
-        }
+    .lbl {
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--accent)
+    }
 
-        @media (prefers-reduced-motion: reduce) {
-            *,
-            *::before,
-            *::after {
-                scroll-behavior: auto !important;
-                transition-duration: .01ms !important;
-                animation-duration: .01ms !important;
-            }
-        }
-    </style>
+    #combo {
+      font-size: clamp(2.8rem, 12vw, 5rem);
+      font-weight: 800;
+      letter-spacing: -.03em;
+      line-height: 1.1
+    }
+
+    #ipa {
+      font-size: 1.15rem;
+      color: var(--muted);
+      font-weight: 500
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    .btn {
+      padding: 13px 20px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--sub);
+      font-weight: 600;
+      font-size: .88rem
+    }
+
+    .btn.main {
+      background: var(--accent);
+      color: var(--onaccent);
+      border-color: transparent
+    }
+
+    .btn:hover {
+      filter: brightness(.96)
+    }
+
+    .btn:active {
+      transform: scale(.97)
+    }
+
+    .tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      font-size: .8rem;
+      color: var(--muted)
+    }
+
+    .seg {
+      display: inline-flex;
+      background: var(--sub);
+      border-radius: 12px;
+      padding: 3px
+    }
+
+    .seg button {
+      border: 0;
+      background: transparent;
+      padding: 6px 12px;
+      border-radius: 9px;
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--muted)
+    }
+
+    .seg button[aria-pressed="true"] {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .1)
+    }
+
+    .tools label {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      cursor: pointer
+    }
+
+    .sub {
+      background: var(--sub);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
+      margin-top: 14px
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 7px 12px;
+      font-size: .88rem;
+      font-weight: 500
+    }
+
+    .chip:hover {
+      background: var(--sel);
+      color: var(--seltext)
+    }
+
+    .note {
+      display: flex;
+      gap: 10px;
+      font-size: .88rem;
+      line-height: 1.5
+    }
+
+    .sec {
+      font-size: .68rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px
+    }
+
+    #toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+      transform: translateX(-50%);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 10px 16px;
+      border-radius: 14px;
+      font-size: .85rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .15)
+    }
+
+    [hidden] {
+      display: none !important
+    }
+
+    @media (prefers-reduced-motion:reduce) {
+      * {
+        transition-duration: .01ms !important
+      }
+    }
+
+    .well {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-radius: 16px;
+      overflow: hidden
+    }
+
+    .wheel {
+      border-radius: 0
+    }
+
+    .item {
+      transition: color .14s;
+      font-size: 1.9rem
+    }
+
+    .cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      justify-items: center;
+      padding: 6px 0
+    }
+
+    .cols b {
+      font-size: .68rem;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--accent)
+    }
+  </style>
 </head>
 
-<body class="min-h-screen flex flex-col font-sans">
-
-    <!-- Header transparent : seul le bouton de thème reste visible -->
-    <header class="w-full px-4 md:px-8 py-3 flex items-center justify-end">
-        <button
-            id="themeToggle"
-            type="button"
-            onclick="toggleDarkMode()"
-            class="theme-button"
-            title="Basculer entre le mode clair et le mode sombre"
-            aria-label="Activer le mode sombre"
-            aria-pressed="false"
-        >
-            <span id="themeIcon" aria-hidden="true">☾</span>
-        </button>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Atelier des sons français</h1>
+      <button class="icon-btn" id="theme" type="button" aria-label="Changer de thème">☾</button>
     </header>
+    <p class="hint">Faites défiler les roues, ou utilisez les flèches ↑ ↓ du clavier</p>
 
-    <main class="flex-1 max-w-6xl w-full mx-auto px-4 pt-3 pb-8 md:px-6 flex flex-col items-center justify-center gap-6">
+    <section class="card">
+      <div class="cols"><b>1. Consonnes</b><b>2. Voyelles</b></div>
+      <div class="well">
+        <div class="bar"></div>
+        <div class="mask"></div>
+        <div class="wheel" id="lw" tabindex="0" role="listbox" aria-label="Consonne ou groupe consonantique"></div>
+        <div class="wheel" id="rw" tabindex="0" role="listbox" aria-label="Voyelle ou son vocalique"></div>
+      </div>
+      <div class="cols"><span class="badge" id="lb"></span><span class="badge" id="rb"></span></div>
+    </section>
 
-        <div class="text-center">
-            <h2 class="text-xs md:text-sm font-semibold uppercase tracking-wider muted">
-                Faites défiler les deux roues pour assembler les sons
-            </h2>
+    <section class="card">
+      <div class="top">
+        <div>
+          <div class="lbl">Combinaison formée</div>
+          <div id="combo" aria-live="polite"></div>
+          <div id="ipa"></div>
+          <div id="say" style="font-size:.9rem;color:var(--muted)"></div>
         </div>
-
-        <!-- Les deux roulettes -->
-        <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-
-            <!-- Roulette consonnes -->
-            <section class="surface rounded-3xl p-4 relative overflow-hidden flex flex-col items-center">
-
-                <div class="w-full flex items-center justify-between pb-3 border-b mb-3" style="border-color:var(--border)">
-                    <span class="text-xs font-semibold uppercase tracking-wider accent-text">
-                        1. Départ / Consonnes
-                    </span>
-                    <span
-                        id="leftCategoryBadge"
-                        class="text-[10px] font-semibold px-2.5 py-1 rounded-full"
-                        style="background:var(--surface-subtle);color:var(--muted)"
-                    >
-                        Graphème
-                    </span>
-                </div>
-
-                <div class="relative w-full h-56 flex items-center justify-center">
-                    <div class="picker-selection"></div>
-                    <div class="picker-mask absolute inset-0 z-20"></div>
-
-                    <div
-                        id="leftWheel"
-                        class="picker-scroll w-full h-full overflow-y-scroll text-center relative z-0"
-                        aria-label="Sélectionner une consonne ou un groupe consonantique"
-                        role="listbox"
-                    ></div>
-                </div>
-            </section>
-
-            <!-- Roulette voyelles -->
-            <section class="surface rounded-3xl p-4 relative overflow-hidden flex flex-col items-center">
-
-                <div class="w-full flex items-center justify-between pb-3 border-b mb-3" style="border-color:var(--border)">
-                    <span class="text-xs font-semibold uppercase tracking-wider accent-text">
-                        2. Voyelles / Sons vocaliques
-                    </span>
-                    <span
-                        id="rightCategoryBadge"
-                        class="text-[10px] font-semibold px-2.5 py-1 rounded-full"
-                        style="background:var(--surface-subtle);color:var(--muted)"
-                    >
-                        Voyelle
-                    </span>
-                </div>
-
-                <div class="relative w-full h-56 flex items-center justify-center">
-                    <div class="picker-selection"></div>
-                    <div class="picker-mask absolute inset-0 z-20"></div>
-
-                    <div
-                        id="rightWheel"
-                        class="picker-scroll w-full h-full overflow-y-scroll text-center relative z-0 text-black dark:text-white"
-                        aria-label="Sélectionner une voyelle ou un son vocalique"
-                        role="listbox"
-                    ></div>
-                </div>
-            </section>
+        <div class="actions">
+          <button class="btn main" type="button" id="play">▶ Écouter</button>
+          <button class="btn" type="button" id="rnd">🎲 Au hasard</button>
         </div>
+      </div>
+      <div class="tools">
+        <span>Vitesse</span>
+        <div class="seg" id="speed">
+          <button type="button" data-r="0.4" aria-pressed="false">Lente</button>
+          <button type="button" data-r="0.7" aria-pressed="true">Normale</button>
+          <button type="button" data-r="1" aria-pressed="false">Rapide</button>
+        </div>
+        <label><input type="checkbox" id="auto"> Lecture automatique</label>
+      </div>
+      <div class="sub">
+        <div class="sec">Mots exemples (touchez pour écouter)</div>
+        <div class="chips" id="words"></div>
+      </div>
+      <div class="sub">
+        <div class="note"><span aria-hidden="true">💡</span>
+          <div id="note"></div>
+        </div>
+      </div>
+      <div id="histBox" hidden style="margin-top:14px">
+        <div class="sec">Dernières combinaisons</div>
+        <div class="chips" id="hist"></div>
+      </div>
+    </section>
+  </div>
+  <div id="toast" role="status" hidden></div>
 
-        <!-- Résultat -->
-        <section class="surface w-full rounded-3xl p-5 md:p-7 space-y-5">
+  <script>
+    const $ = id => document.getElementById(id);
+    const H = 56;
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pb-4 border-b" style="border-color:var(--border)">
-                <div class="text-center sm:text-left">
-                    <span class="text-xs font-semibold uppercase tracking-widest accent-text">
-                        Combinaison formée
-                    </span>
-                    <div
-                        id="grandResultTitle"
-                        class="text-5xl md:text-7xl font-extrabold tracking-tight pt-1"
-                        aria-live="polite"
-                    >
-                        CHEAU
-                    </div>
-                </div>
+    const DI = ['CH', 'GN', 'GU', 'PH', 'QU', 'SS', 'TH'];
+    const GR = ['BL', 'BR', 'CL', 'CR', 'DR', 'FL', 'FR', 'GL', 'GR', 'PL', 'PR', 'SC', 'TR', 'VR'];
+    const LEFT = 'B|b;BL|bl;BR|bʁ;C|k;CH|ʃ;CL|kl;CR|kʁ;D|d;DR|dʁ;F|f;FL|fl;FR|fʁ;G|ɡ;GL|ɡl;GN|ɲ;GR|ɡʁ;GU|ɡ;J|ʒ;K|k;L|l;M|m;N|n;P|p;PH|f;PL|pl;PR|pʁ;QU|k;R|ʁ;S|s;SC|sk;SS|s;STR|stʁ;T|t;TH|t;TR|tʁ;V|v;VR|vʁ;Z|z'
+      .split(';').map(s => {
+        const [l, i] = s.split('|');
+        return { l, i, t: l === 'STR' ? 'Trigramme consonantique' : DI.includes(l) ? 'Digramme consonantique' : GR.includes(l) ? 'Groupe consonantique' : 'Consonne simple' };
+      });
+    const RIGHT = 'A|a|Voyelle simple;E|ə|Voyelle simple;É|e|Voyelle accentuée;È|ɛ|Voyelle accentuée;Ê|ɛ|Voyelle accentuée;I|i|Voyelle simple;O|o|Voyelle simple;U|y|Voyelle simple;Y|i|Voyelle simple;OU|u|Graphème composé;OI|wa|Graphème composé;AI|ɛ|Graphème composé;EI|ɛ|Graphème composé;AU|o|Graphème composé;EAU|o|Trigramme vocalique;EU|ø|Graphème composé;ŒU|œ|Graphème composé;UI|ɥi|Semi-voyelle;AN|ɑ̃|Son nasal;EN|ɑ̃|Son nasal;ON|ɔ̃|Son nasal;IN|ɛ̃|Son nasal;AIN|ɛ̃|Son nasal;UN|œ̃|Son nasal'
+      .split(';').map(s => { const [l, i, t] = s.split('|'); return { l, i, t }; });
 
-                <button
-                    type="button"
-                    onclick="playCombinationAudio()"
-                    class="listen-button px-6 py-3.5 font-semibold text-sm rounded-2xl flex items-center gap-3"
-                >
-                    <span class="text-xl" aria-hidden="true">▶</span>
-                    <span>Écouter</span>
-                </button>
-            </div>
+    const WORDS = `château chameau chapeau chaise chaîne chat chaud chocolat cheval chemise chien chou bouche bouteille bateau ballon beau bureau brun brise bras blanc blé bleu cou coup cœur café cadeau cahier camion carotte cerise cerf ceinture citron cinéma cloche clé clou crabe crayon cri crêpe croix crocodile drap drôle dragon dent doigt dos fleur fleuve flamme fromage fraise français frère frite gâteau gare garçon girafe gilet glace gris grand gros grenouille guitare guerre gnome singe jardin jambe jaune jouet kilo koala lapin lait lune livre lion lundi main maison mer mouton nez nuit neige nuage orange pain papa pomme poule plume plage pluie poisson prix propre photo phoque pharmacie quatre question quai quand radio rat rouge robe riz sac sel soleil sucre scie science stylo stratégie table tête tigre train trois tronc tracteur thé théâtre thon valise vache vélo vert voiture vrai zèbre zéro zoo`.split(' ');
 
-            <div class="grid grid-cols-1 gap-3">
-                <div class="subtle-surface p-4 rounded-2xl">
-                    <div class="text-[11px] font-semibold uppercase tracking-wider muted mb-2">
-                        Mots exemples
-                    </div>
-                    <div id="breakdownWords" class="text-sm font-medium">
-                        Château, Chameau, Chapeau
-                    </div>
-                </div>
-            </div>
+    const st = { l: RIGHT.length && LEFT.findIndex(x => x.l === 'CH'), r: RIGHT.findIndex(x => x.l === 'EAU'), rate: 0.7, voice: null, timer: null, hist: [] };
 
-            <div
-                id="pedagogicalNote"
-                class="note-box p-4 rounded-2xl text-sm leading-relaxed flex items-start gap-3"
-            >
-                <span class="text-base" aria-hidden="true">💡</span>
-                <div>
-                    <strong>Structure :</strong>
-                    Digramme consonantique CH (/ʃ/) associé au trigramme vocalique EAU (/o/).
-                </div>
-            </div>
-        </section>
-    </main>
+    function build(id, items, side) {
+      const w = $(id);
+      items.forEach((it, i) => {
+        const d = document.createElement('div');
+        d.className = 'item'; d.textContent = it.l; d.setAttribute('role', 'option');
+        d.addEventListener('click', () => go(side, i));
+        w.appendChild(d);
+      });
+      let raf = 0;
+      w.addEventListener('scroll', () => {
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => { fx(side); set(side, Math.round(w.scrollTop / H)); });
+      }, { passive: true });
+      w.addEventListener('keydown', e => {
+        const k = { ArrowUp: -1, ArrowDown: 1, PageUp: -4, PageDown: 4 }[e.key];
+        if (k) { e.preventDefault(); go(side, st[side] + k); }
+        else if (e.key === 'Home') { e.preventDefault(); go(side, 0); }
+        else if (e.key === 'End') { e.preventDefault(); go(side, items.length - 1); }
+      });
+    }
+    const lists = { l: LEFT, r: RIGHT };
+    const wheels = { l: 'lw', r: 'rw' };
 
-    <div
-        id="toast"
-        class="hidden fixed bottom-5 right-5 z-50 px-4 py-3 rounded-2xl shadow-lg text-sm"
-        style="background:var(--surface);color:var(--text);border:1px solid var(--border)"
-        role="status"
-        aria-live="polite"
-    >
-        <span id="toastMsg">Message</span>
-    </div>
+    function go(side, i, instant) {
+      i = Math.max(0, Math.min(lists[side].length - 1, i));
+      $(wheels[side]).scrollTo({ top: i * H, behavior: instant || reduce ? 'auto' : 'smooth' });
+      set(side, i);
+    }
 
-    <script>
-        /*
-         * Données phonétiques
-         */
+    function set(side, i) {
+      i = Math.max(0, Math.min(lists[side].length - 1, i));
+      const kids = $(wheels[side]).children;
+      if (st[side] === i && kids[i].classList.contains('on')) return;
+      st[side] = i;
+      [...kids].forEach((k, j) => { k.classList.toggle('on', j === i); k.setAttribute('aria-selected', j === i); });
+      render();
+      clearTimeout(st.timer);
+      st.timer = setTimeout(settle, 650);
+    }
 
-        const LEFT_ITEMS = [
-            { id: 'A', label: 'A', type: 'Voyelle de départ', ipa: '[a]' },
-            { id: 'B', label: 'B', type: 'Consonne simple', ipa: '[b]' },
-            { id: 'BL', label: 'BL', type: 'Groupe consonantique', ipa: '[bl]' },
-            { id: 'BR', label: 'BR', type: 'Groupe consonantique', ipa: '[bʁ]' },
-            { id: 'C', label: 'C', type: 'Consonne variable', ipa: '[k]/[s]' },
-            { id: 'CH', label: 'CH', type: 'Digramme consonantique', ipa: '[ʃ]' },
-            { id: 'CL', label: 'CL', type: 'Groupe consonantique', ipa: '[kl]' },
-            { id: 'CR', label: 'CR', type: 'Groupe consonantique', ipa: '[kʁ]' },
-            { id: 'D', label: 'D', type: 'Consonne simple', ipa: '[d]' },
-            { id: 'DR', label: 'DR', type: 'Groupe consonantique', ipa: '[dʁ]' },
-            { id: 'F', label: 'F', type: 'Consonne simple', ipa: '[f]' },
-            { id: 'FL', label: 'FL', type: 'Groupe consonantique', ipa: '[fl]' },
-            { id: 'FR', label: 'FR', type: 'Groupe consonantique', ipa: '[fʁ]' },
-            { id: 'G', label: 'G', type: 'Consonne variable', ipa: '[ɡ]/[ʒ]' },
-            { id: 'GL', label: 'GL', type: 'Groupe consonantique', ipa: '[ɡl]' },
-            { id: 'GN', label: 'GN', type: 'Digramme consonantique', ipa: '[ɲ]' },
-            { id: 'GR', label: 'GR', type: 'Groupe consonantique', ipa: '[ɡʁ]' },
-            { id: 'GU', label: 'GU', type: 'Digramme consonantique', ipa: '[ɡ]' },
-            { id: 'J', label: 'J', type: 'Consonne simple', ipa: '[ʒ]' },
-            { id: 'K', label: 'K', type: 'Consonne simple', ipa: '[k]' },
-            { id: 'L', label: 'L', type: 'Consonne simple', ipa: '[l]' },
-            { id: 'M', label: 'M', type: 'Consonne simple', ipa: '[m]' },
-            { id: 'N', label: 'N', type: 'Consonne simple', ipa: '[n]' },
-            { id: 'P', label: 'P', type: 'Consonne simple', ipa: '[p]' },
-            { id: 'PH', label: 'PH', type: 'Digramme consonantique', ipa: '[f]' },
-            { id: 'PL', label: 'PL', type: 'Groupe consonantique', ipa: '[pl]' },
-            { id: 'PR', label: 'PR', type: 'Groupe consonantique', ipa: '[pʁ]' },
-            { id: 'QU', label: 'QU', type: 'Digramme consonantique', ipa: '[k]' },
-            { id: 'R', label: 'R', type: 'Consonne simple', ipa: '[ʁ]' },
-            { id: 'S', label: 'S', type: 'Consonne simple', ipa: '[s]/[z]' },
-            { id: 'SC', label: 'SC', type: 'Groupe consonantique', ipa: '[sk]' },
-            { id: 'SS', label: 'SS', type: 'Digramme consonantique', ipa: '[s]' },
-            { id: 'STR', label: 'STR', type: 'Trigramme consonantique', ipa: '[stʁ]' },
-            { id: 'T', label: 'T', type: 'Consonne simple', ipa: '[t]' },
-            { id: 'TH', label: 'TH', type: 'Digramme consonantique', ipa: '[t]' },
-            { id: 'TR', label: 'TR', type: 'Groupe consonantique', ipa: '[tʁ]' },
-            { id: 'V', label: 'V', type: 'Consonne simple', ipa: '[v]' },
-            { id: 'VR', label: 'VR', type: 'Groupe consonantique', ipa: '[vʁ]' },
-            { id: 'Z', label: 'Z', type: 'Consonne simple', ipa: '[z]' }
-        ];
+    /* Effet de cylindre façon sélecteur iOS */
+    function fx(side) {
+      const w = $(wheels[side]), p = w.scrollTop / H;
+      [...w.children].forEach((k, j) => {
+        const d = j - p, a = Math.abs(d);
+        if (a > 4) { k.style.visibility = 'hidden'; return; }
+        k.style.visibility = '';
+        k.style.opacity = Math.max(0.12, 1 - a * 0.28);
+        k.style.transform = `perspective(300px) rotateX(${-d * 20}deg) scale(${1 - a * 0.06})`;
+      });
+    }
 
-        const RIGHT_ITEMS = [
-            { id: 'A', label: 'A', type: 'Voyelle simple', ipa: '[a]' },
-            { id: 'E', label: 'E', type: 'Voyelle simple', ipa: '[ə]' },
-            { id: 'É', label: 'É', type: 'Voyelle accentuée', ipa: '[e]' },
-            { id: 'È', label: 'È', type: 'Voyelle accentuée', ipa: '[ɛ]' },
-            { id: 'Ê', label: 'Ê', type: 'Voyelle accentuée', ipa: '[ɛ]' },
-            { id: 'I', label: 'I', type: 'Voyelle simple', ipa: '[i]' },
-            { id: 'O', label: 'O', type: 'Voyelle simple', ipa: '[o]' },
-            { id: 'U', label: 'U', type: 'Voyelle simple', ipa: '[y]' },
-            { id: 'Y', label: 'Y', type: 'Voyelle simple', ipa: '[i]' },
-            { id: 'OU', label: 'OU', type: 'Graphème composé', ipa: '[u]' },
-            { id: 'OI', label: 'OI', type: 'Graphème composé', ipa: '[wa]' },
-            { id: 'AI', label: 'AI', type: 'Graphème composé', ipa: '[ɛ]' },
-            { id: 'EI', label: 'EI', type: 'Graphème composé', ipa: '[ɛ]' },
-            { id: 'AU', label: 'AU', type: 'Graphème composé', ipa: '[o]' },
-            { id: 'EAU', label: 'EAU', type: 'Graphème composé', ipa: '[o]' },
-            { id: 'EU', label: 'EU', type: 'Graphème composé', ipa: '[ø]' },
-            { id: 'ŒU', label: 'ŒU', type: 'Graphème composé', ipa: '[œ]' },
-            { id: 'UI', label: 'UI', type: 'Semi-voyelle', ipa: '[ɥi]' },
-            { id: 'AN', label: 'AN', type: 'Son nasal', ipa: '[ɑ̃]' },
-            { id: 'EN', label: 'EN', type: 'Son nasal', ipa: '[ɑ̃]' },
-            { id: 'ON', label: 'ON', type: 'Son nasal', ipa: '[ɔ̃]' },
-            { id: 'IN', label: 'IN', type: 'Son nasal', ipa: '[ɛ̃]' },
-            { id: 'AIN', label: 'AIN', type: 'Son nasal', ipa: '[ɛ̃]' },
-            { id: 'UN', label: 'UN', type: 'Son nasal', ipa: '[œ̃]' }
-        ];
+    /* Lecture phonétique : on lit les sons, pas les lettres */
+    const VW = { A: 'a', E: 'e', 'É': 'é', 'È': 'è', 'Ê': 'è', I: 'i', O: 'ô', U: 'u', Y: 'i', OU: 'ou', OI: 'oi', AI: 'è', EI: 'è', AU: 'ô', EAU: 'ô', EU: 'eu', 'ŒU': 'eu', UI: 'ui', AN: 'an', EN: 'an', ON: 'on', IN: 'in', AIN: 'in', UN: 'un' };
+    const CW = { '\u0283': 'ch', '\u0292': 'j', '\u0272': 'gn', '\u0281': 'r', '\u0261': 'g' };
+    function respell(cons, vowelLabel) {
+      const v = VW[vowelLabel] || vowelLabel.toLowerCase();
+      let c = [...cons].map(x => CW[x] || x).join('');
+      if (c.endsWith('g') && /^(e|é|è|i|eu)/.test(v)) c += 'u';
+      return c + v;
+    }
 
-        const DICTIONARY = {
-            'CHEAU': { ipa: '[ʃo]', words: 'Château, Chameau, Chapeau', note: 'Digramme CH (/ʃ/) + trigramme EAU (/o/).' },
-            'BRAIN': { ipa: '[bʁɛ̃]', words: 'Brain, Cerveau (familier)', note: 'Groupe BR + son nasal AIN (/ɛ̃/).' },
-            'COU': { ipa: '[ku]', words: 'Cou, Coup, Coudre', note: 'Devant OU, le C se prononce [k].' },
-            'CROU': { ipa: '[kʁu]', words: 'Croupir, Croute', note: 'Groupe CR + son vocalique OU (/u/).' },
-            'CRAN': { ipa: '[kʁɑ̃]', words: 'Cran, Crâne, Crapaud', note: 'Groupe CR + son nasal AN (/ɑ̃/).' },
-            'CHAI': { ipa: '[ʃɛ]', words: 'Chaise, Chaîne', note: 'CH (/ʃ/) + AI (/ɛ/).' },
-            'TRAI': { ipa: '[tʁɛ]', words: 'Train, Traire, Trait', note: 'Groupe TR + AI (/ɛ/).' },
-            'TROI': { ipa: '[tʁwa]', words: 'Trois, Troisième', note: 'Groupe TR + OI (/wa/).' },
-            'PHO': { ipa: '[fo]', words: 'Photo, Phoque', note: 'PH se prononce [f].' },
-            'STRA': { ipa: '[stʁa]', words: 'Stratégie, Strate', note: 'Groupe STR + A.' },
-            'BOU': { ipa: '[bu]', words: 'Bouche, Bouteille', note: 'B + graphème OU (/u/).' },
-            'BA': { ipa: '[ba]', words: 'Bateau, Ballon', note: 'B + voyelle simple A.' },
-            'BEAU': { ipa: '[bo]', words: 'Beau, Beauté', note: 'B + trigramme EAU (/o/).' }
-        };
+    function info() {
+      const a = LEFT[st.l], b = RIGHT[st.r];
+      const soft = 'EIÉÈÊY'.includes(b.l[0]);
+      let li = a.i, rule = '';
+      if (a.l === 'C' && soft) { li = 's'; rule = ' Devant E, I ou Y, le C se prononce [s].'; }
+      else if (a.l === 'C') rule = ' Devant A, O, U ou une consonne, le C se prononce [k].';
+      if (a.l === 'G' && soft) { li = 'ʒ'; rule = ' Devant E, I ou Y, le G se prononce [ʒ].'; }
+      else if (a.l === 'G') rule = ' Devant A, O, U ou une consonne, le G se prononce [ɡ].';
+      if (a.l === 'S') rule = ' Entre deux voyelles, le S se prononce [z] (rose), sinon [s].';
+      return { a, b, li, rule, ipa: li + b.i, combo: a.l + b.l, say: respell(li, b.l) };
+    }
 
-        let state = {
-            selectedLeft: 'CH',
-            selectedRight: 'EAU',
-            speechSpeed: 0.5,
-            selectedVoice: null,
-            isDarkMode: false
-        };
+    function render() {
+      const { a, b, li, rule, ipa, combo, say } = info();
+      $('combo').textContent = combo;
+      $('ipa').textContent = `[${ipa}]`;
+      $('say').textContent = 'Se lit : « ' + say + ' »';
+      $('lb').textContent = a.t; $('rb').textContent = b.t;
+      const low = combo.toLowerCase();
+      const found = WORDS.filter(w => w.startsWith(low)).slice(0, 8);
+      const box = $('words'); box.innerHTML = '';
+      if (!found.length) {
+        const p = document.createElement('span');
+        p.style.cssText = 'font-size:.85rem;color:var(--muted)';
+        p.textContent = 'Aucun mot courant de la liste ne commence ainsi. Essayez une autre combinaison.';
+        box.appendChild(p);
+      }
+      found.forEach(w => {
+        const c = document.createElement('button');
+        c.type = 'button'; c.className = 'chip'; c.textContent = w;
+        c.addEventListener('click', () => speak(w));
+        box.appendChild(c);
+      });
+      $('note').textContent = `${a.t} ${a.l} → /${li}/, associé à : ${b.t.toLowerCase()} ${b.l} → /${b.i}/.${rule}`;
+    }
 
-        /*
-         * Initialisation
-         */
-
-        window.addEventListener('DOMContentLoaded', () => {
-            initSpeechSynthesis();
-            renderLeftWheel();
-            renderRightWheel();
-
-            applyTheme(false);
-
-            requestAnimationFrame(() => {
-                scrollToLeftItem('CH', 'auto');
-                scrollToRightItem('EAU', 'auto');
-
-                bindPickerEvents('leftWheel', onLeftWheelScroll);
-                bindPickerEvents('rightWheel', onRightWheelScroll);
-            });
+    function settle() {
+      const { combo } = info();
+      st.hist = [combo, ...st.hist.filter(h => h !== combo)].slice(0, 8);
+      const hb = $('hist'); hb.innerHTML = '';
+      st.hist.forEach(h => {
+        const c = document.createElement('button');
+        c.type = 'button'; c.className = 'chip'; c.textContent = h;
+        c.addEventListener('click', () => {
+          const x = LEFT.map(v => v.l).sort((p, q) => q.length - p.length).find(v => h.startsWith(v));
+          go('l', LEFT.findIndex(v => v.l === x));
+          go('r', RIGHT.findIndex(v => v.l === h.slice(x.length)));
         });
-
-        /*
-         * Mode clair / sombre
-         */
-
-        function applyTheme(isDark) {
-            state.isDarkMode = isDark;
-            document.documentElement.classList.toggle('dark', isDark);
-
-            const icon = document.getElementById('themeIcon');
-            const button = document.getElementById('themeToggle');
-
-            icon.textContent = isDark ? '☀' : '☾';
-            button.setAttribute('aria-pressed', String(isDark));
-            button.setAttribute(
-                'aria-label',
-                isDark ? 'Activer le mode clair' : 'Activer le mode sombre'
-            );
-
-            document.querySelector('meta[name="theme-color"]')
-                .setAttribute('content', isDark ? '#1d201e' : '#f5f5f2');
-        }
-
-        function toggleDarkMode() {
-            applyTheme(!state.isDarkMode);
-        }
-
-        /*
-         * Synthèse vocale
-         */
-
-        function initSpeechSynthesis() {
-            if (!('speechSynthesis' in window)) return;
-
-            const loadVoices = () => {
-                const voices = window.speechSynthesis.getVoices();
-                const frenchVoice = voices.find(voice =>
-                    voice.lang.toLowerCase().startsWith('fr')
-                );
-
-                if (frenchVoice) {
-                    state.selectedVoice = frenchVoice;
-                }
-            };
-
-            loadVoices();
-            window.speechSynthesis.onvoiceschanged = loadVoices;
-        }
-
-        function speak(text) {
-            if (!('speechSynthesis' in window)) {
-                showToast('Synthèse vocale non disponible');
-                return;
-            }
-
-            window.speechSynthesis.cancel();
-
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'fr-FR';
-            utterance.rate = state.speechSpeed;
-
-            if (state.selectedVoice) {
-                utterance.voice = state.selectedVoice;
-            }
-
-            window.speechSynthesis.speak(utterance);
-        }
-
-        /*
-         * Création des éléments des roulettes
-         */
-
-        function createPickerItem(item, side) {
-            const div = document.createElement('div');
-            div.id = `${side}-item-${item.id}`;
-            div.className = 'picker-item';
-            div.setAttribute('role', 'option');
-            div.setAttribute('aria-label', `${item.label}, ${item.ipa}`);
-            div.dataset.itemId = item.id;
-
-            div.innerHTML = `
-                <div class="flex items-center justify-center gap-3">
-                    <span class="text-2xl md:text-3xl font-semibold tracking-tight item-text text-black dark:text-white">${item.label}</span>
-                </div>
-            `;
-
-            div.addEventListener('click', () => {
-                if (side === 'left') {
-                    scrollToLeftItem(item.id);
-                } else {
-                    scrollToRightItem(item.id);
-                }
-                speak(item.id);
-            });
-
-            return div;
-        }
-
-        function renderLeftWheel() {
-            const container = document.getElementById('leftWheel');
-            container.innerHTML = '';
-
-            LEFT_ITEMS.forEach(item => {
-                container.appendChild(createPickerItem(item, 'left'));
-            });
-
-            updateWheelVisuals('leftWheel', LEFT_ITEMS, state.selectedLeft);
-        }
-
-        function renderRightWheel() {
-            const container = document.getElementById('rightWheel');
-            container.innerHTML = '';
-
-            RIGHT_ITEMS.forEach(item => {
-                container.appendChild(createPickerItem(item, 'right'));
-            });
-
-            updateWheelVisuals('rightWheel', RIGHT_ITEMS, state.selectedRight);
-        }
-
-        /*
-         * Défilement et sélection des sons
-         */
-
-        function scrollToItem(side, id, behavior = 'smooth') {
-            const container = document.getElementById(
-                side === 'left' ? 'leftWheel' : 'rightWheel'
-            );
-            const el = document.getElementById(`${side}-item-${id}`);
-
-            if (!container || !el) return;
-
-            const containerRect = container.getBoundingClientRect();
-            const itemRect = el.getBoundingClientRect();
-
-            const itemTop = itemRect.top - containerRect.top + container.scrollTop;
-            const targetTop = itemTop - (container.clientHeight / 2) + (el.offsetHeight / 2);
-
-            container.scrollTo({
-                top: targetTop,
-                behavior
-            });
-
-            if (side === 'left') {
-                state.selectedLeft = id;
-                updateWheelVisuals('leftWheel', LEFT_ITEMS, id);
-            } else {
-                state.selectedRight = id;
-                updateWheelVisuals('rightWheel', RIGHT_ITEMS, id);
-            }
-
-            updateResultDisplay();
-        }
-
-        function scrollToLeftItem(id, behavior = 'smooth') {
-            scrollToItem('left', id, behavior);
-        }
-
-        function scrollToRightItem(id, behavior = 'smooth') {
-            scrollToItem('right', id, behavior);
-        }
-
-        function bindPickerEvents(wheelId, callback) {
-            const wheel = document.getElementById(wheelId);
-            let timeout = null;
-
-            wheel.addEventListener('scroll', () => {
-                clearTimeout(timeout);
-                timeout = setTimeout(callback, 100);
-            }, { passive: true });
-        }
-
-        function getClosestItem(container, items, side) {
-            const containerRect = container.getBoundingClientRect();
-            const centerY = containerRect.top + container.clientHeight / 2;
-
-            let closest = items[0];
-            let minDistance = Infinity;
-
-            items.forEach(item => {
-                const el = document.getElementById(`${side}-item-${item.id}`);
-                if (!el) return;
-
-                const rect = el.getBoundingClientRect();
-                const itemCenter = rect.top + rect.height / 2;
-                const distance = Math.abs(centerY - itemCenter);
-
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    closest = item;
-                }
-            });
-
-            return closest;
-        }
-
-        function onLeftWheelScroll() {
-            const container = document.getElementById('leftWheel');
-            const closest = getClosestItem(container, LEFT_ITEMS, 'left');
-
-            if (closest && state.selectedLeft !== closest.id) {
-                state.selectedLeft = closest.id;
-                updateWheelVisuals('leftWheel', LEFT_ITEMS, closest.id);
-                updateResultDisplay();
-            }
-        }
-
-        function onRightWheelScroll() {
-            const container = document.getElementById('rightWheel');
-            const closest = getClosestItem(container, RIGHT_ITEMS, 'right');
-
-            if (closest && state.selectedRight !== closest.id) {
-                state.selectedRight = closest.id;
-                updateWheelVisuals('rightWheel', RIGHT_ITEMS, closest.id);
-                updateResultDisplay();
-            }
-        }
-
-        function updateWheelVisuals(wheelId, items, activeId) {
-            const side = wheelId === 'leftWheel' ? 'left' : 'right';
-
-            items.forEach(item => {
-                const el = document.getElementById(`${side}-item-${item.id}`);
-                if (!el) return;
-
-                const text = el.querySelector('.item-text');
-                const isActive = item.id === activeId;
-
-                el.style.opacity = isActive ? '1' : '0.42';
-                el.style.transform = isActive ? 'scale(1.08)' : 'scale(0.9)';
-                el.setAttribute('aria-selected', String(isActive));
-
-                if (text) {
-                    text.style.color = isActive
-                        ? 'var(--selection-text)'
-                        : 'var(--muted)';
-                    text.style.fontWeight = isActive ? '750' : '500';
-                }
-            });
-
-            const activeItem = items.find(item => item.id === activeId);
-
-            if (activeItem) {
-                const badgeId = side === 'left'
-                    ? 'leftCategoryBadge'
-                    : 'rightCategoryBadge';
-
-                document.getElementById(badgeId).textContent = activeItem.type;
-            }
-        }
-
-        /*
-         * Résultat et explication
-         */
-
-        function updateResultDisplay() {
-            const combo = state.selectedLeft + state.selectedRight;
-            document.getElementById('grandResultTitle').textContent = combo;
-
-            const data = DICTIONARY[combo] || {
-                ipa: `[${estimateIPA(combo)}]`,
-                words: `${combo}…`,
-                note: `Combinaison de ${state.selectedLeft} et du son vocalique ${state.selectedRight}.`
-            };
-
-            document.getElementById('breakdownWords').textContent = data.words;
-
-            document.getElementById('pedagogicalNote').innerHTML = `
-                <span class="text-base" aria-hidden="true">💡</span>
-                <div>
-                    <strong>Observation :</strong> ${data.note}
-                </div>
-            `;
-        }
-
-        function playCombinationAudio() {
-            speak(state.selectedLeft + state.selectedRight);
-        }
-
-        function invertSelection() {
-            const left = state.selectedLeft;
-            const right = state.selectedRight;
-
-            if (LEFT_ITEMS.some(item => item.id === right)) {
-                scrollToLeftItem(right);
-            }
-
-            if (RIGHT_ITEMS.some(item => item.id === left)) {
-                scrollToRightItem(left);
-            }
-
-            showToast('Ordre réorganisé');
-        }
-
-        /*
-         * Estimation phonétique simplifiée
-         */
-
-        function estimateIPA(text) {
-            return text.toLowerCase()
-                .replace(/ch/g, 'ʃ')
-                .replace(/ph/g, 'f')
-                .replace(/eau|au/g, 'o')
-                .replace(/ou/g, 'u')
-                .replace(/oi/g, 'wa')
-                .replace(/an|en/g, 'ɑ̃')
-                .replace(/on/g, 'ɔ̃')
-                .replace(/in|un|ain/g, 'ɛ̃');
-        }
-
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastMsg').textContent = message;
-            toast.classList.remove('hidden');
-
-            clearTimeout(showToast.timeout);
-            showToast.timeout = setTimeout(() => {
-                toast.classList.add('hidden');
-            }, 2000);
-        }
-    </script>
+        hb.appendChild(c);
+      });
+      $('histBox').hidden = false;
+      if ($('auto').checked) speak(info().say);
+    }
+
+    /* Synthèse vocale */
+    function initVoices() {
+      if (!('speechSynthesis' in window)) return;
+      const load = () => { st.voice = speechSynthesis.getVoices().find(v => v.lang.toLowerCase().startsWith('fr')) || null; };
+      load(); speechSynthesis.onvoiceschanged = load;
+    }
+    function speak(text) {
+      if (!('speechSynthesis' in window)) return toast('Synthèse vocale non disponible');
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'fr-FR'; u.rate = st.rate;
+      if (st.voice) u.voice = st.voice;
+      speechSynthesis.speak(u);
+    }
+    function toast(m) {
+      const t = $('toast'); t.textContent = m; t.hidden = false;
+      clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 2000);
+    }
+
+    /* Thème */
+    function isDark() {
+      const t = document.documentElement.dataset.theme;
+      return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    function icon() { $('theme').textContent = isDark() ? '☀' : '☾'; }
+    function toggleTheme() {
+      const next = isDark() ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next;
+      try { localStorage.setItem('atelier-theme', next); } catch (e) { }
+      icon();
+    }
+
+    /* Initialisation */
+    try { const s = localStorage.getItem('atelier-theme'); if (s) document.documentElement.dataset.theme = s; } catch (e) { }
+    build('lw', LEFT, 'l'); build('rw', RIGHT, 'r');
+    icon(); initVoices();
+    $('theme').addEventListener('click', toggleTheme);
+    $('play').addEventListener('click', () => speak(info().say));
+    $('rnd').addEventListener('click', () => {
+      go('l', Math.floor(Math.random() * LEFT.length));
+      go('r', Math.floor(Math.random() * RIGHT.length));
+    });
+    $('speed').addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b) return;
+      st.rate = parseFloat(b.dataset.r);
+      [...$('speed').children].forEach(x => x.setAttribute('aria-pressed', x === b));
+    });
+    requestAnimationFrame(() => {
+      go('l', st.l, true); go('r', st.r, true);
+      st.l = st.r = -1; fx('l'); fx('r'); set('l', LEFT.findIndex(x => x.l === 'CH')); set('r', RIGHT.findIndex(x => x.l === 'EAU'));
+    });
+  </script>
 </body>
+
 </html>
