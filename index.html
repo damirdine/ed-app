@@ -184,16 +184,6 @@
       color: var(--accent)
     }
 
-    .badge {
-      font-size: .62rem;
-      font-weight: 600;
-      padding: 4px 8px;
-      border-radius: 99px;
-      background: var(--sub);
-      color: var(--muted);
-      white-space: nowrap
-    }
-
     .well {
       position: relative;
       height: 224px
@@ -631,7 +621,6 @@
         <div class="wheel" id="lw" tabindex="0" role="listbox" aria-label="Consonne ou groupe consonantique"></div>
         <div class="wheel" id="rw" tabindex="0" role="listbox" aria-label="Voyelle ou son vocalique"></div>
       </div>
-      <div class="cols"><span class="badge" id="lb"></span><span class="badge" id="rb"></span></div>
     </section>
 
     <section class="card">
@@ -791,7 +780,6 @@
       $('combo').textContent = combo;
       $('ipa').textContent = `[${ipa}]`;
       $('say').textContent = 'Se lit : « ' + say + ' »';
-      $('lb').textContent = a.t; $('rb').textContent = b.t;
       const low = combo.toLowerCase();
       const found = WORDS.filter(w => w.startsWith(low)).slice(0, 8);
       const box = $('words'); box.innerHTML = '';
