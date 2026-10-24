@@ -442,16 +442,167 @@
       text-transform: uppercase;
       color: var(--accent)
     }
+
+    html {
+      -webkit-text-size-adjust: 100%
+    }
+
+    body {
+      min-height: 100dvh;
+      -webkit-tap-highlight-color: transparent
+    }
+
+    .wheel {
+      touch-action: pan-y
+    }
+
+    .item {
+      -webkit-user-select: none;
+      user-select: none
+    }
+
+    .icon-btn {
+      width: 44px;
+      height: 44px;
+      flex: none
+    }
+
+    .chip {
+      padding: 10px 14px
+    }
+
+    .seg button {
+      padding: 9px 14px
+    }
+
+    header h1 {
+      flex: 1;
+      text-align: center
+    }
+
+    dialog {
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: var(--surface);
+      color: var(--text);
+      padding: 20px;
+      width: min(440px, calc(100% - 24px));
+      margin: auto;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, .25)
+    }
+
+    dialog::backdrop {
+      background: rgba(0, 0, 0, .4)
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 0;
+      border-top: 1px solid var(--border);
+      font-weight: 600;
+      font-size: .95rem
+    }
+
+    .row small {
+      display: block;
+      color: var(--muted);
+      font-weight: 400;
+      font-size: .78rem;
+      margin-top: 3px;
+      max-width: 22ch
+    }
+
+    .sw {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 52px;
+      height: 32px;
+      border-radius: 99px;
+      background: var(--border);
+      position: relative;
+      cursor: pointer;
+      transition: background .2s;
+      flex: none;
+      margin: 0
+    }
+
+    .sw::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+      transition: transform .2s
+    }
+
+    .sw:checked {
+      background: var(--accent)
+    }
+
+    .sw:checked::after {
+      transform: translateX(20px)
+    }
+
+    @media (max-width:620px) {
+      .actions {
+        width: 100%
+      }
+
+      .actions .btn {
+        flex: 1;
+        padding: 15px
+      }
+
+      dialog {
+        margin: auto auto calc(12px + env(safe-area-inset-bottom, 0px))
+      }
+    }
+
+    @media (min-width:768px) {
+      .wrap {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        align-items: start;
+        gap: 20px;
+        max-width: 1080px;
+        padding: 20px 24px 40px
+      }
+
+      header,
+      .hint {
+        grid-column: 1/-1
+      }
+
+      .wrap>section:first-of-type {
+        position: sticky;
+        top: 20px
+      }
+
+      .card {
+        padding: 20px
+      }
+
+      .item {
+        font-size: 2.2rem
+      }
+    }
   </style>
 </head>
 
 <body>
   <div class="wrap">
     <header>
-      <h1>Atelier des sons français</h1>
       <button class="icon-btn" id="theme" type="button" aria-label="Changer de thème">☾</button>
+      <button class="icon-btn" id="gear" type="button" aria-label="Réglages">⚙️</button>
     </header>
-    <p class="hint">Faites défiler les roues, ou utilisez les flèches ↑ ↓ du clavier</p>
+    <p class="hint">Faites défiler les deux roues pour former un son</p>
 
     <section class="card">
       <div class="cols"><b>1. Consonnes</b><b>2. Voyelles</b></div>
@@ -477,23 +628,9 @@
           <button class="btn" type="button" id="rnd">🎲 Au hasard</button>
         </div>
       </div>
-      <div class="tools">
-        <span>Vitesse</span>
-        <div class="seg" id="speed">
-          <button type="button" data-r="0.4" aria-pressed="true">Lente</button>
-          <button type="button" data-r="0.7" aria-pressed="false">Normale</button>
-          <button type="button" data-r="1" aria-pressed="false">Rapide</button>
-        </div>
-        <label><input type="checkbox" id="auto" checked> Lecture automatique</label>
-      </div>
       <div class="sub">
         <div class="sec">Mots exemples (touchez pour écouter)</div>
         <div class="chips" id="words"></div>
-      </div>
-      <div class="sub">
-        <div class="note"><span aria-hidden="true">💡</span>
-          <div id="note"></div>
-        </div>
       </div>
       <div id="histBox" hidden style="margin-top:14px">
         <div class="sec">Dernières combinaisons</div>
@@ -501,6 +638,22 @@
       </div>
     </section>
   </div>
+  <dialog id="dlg" aria-labelledby="dt">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <h2 id="dt" style="margin:0;font-size:1.15rem">Réglages</h2><button class="icon-btn" id="close" type="button"
+        aria-label="Fermer">✕</button>
+    </div>
+    <div class="row">
+      <div>Vitesse de lecture<small>Plus lente pour bien entendre chaque son</small></div>
+      <div class="seg" id="speed">
+        <button type="button" data-r="0.4" aria-pressed="true">Lente</button>
+        <button type="button" data-r="0.7" aria-pressed="false">Normale</button>
+        <button type="button" data-r="1" aria-pressed="false">Rapide</button>
+      </div>
+    </div>
+    <div class="row"><label for="auto">Lecture automatique<small>Lit le son dès que les roues
+          s’arrêtent</small></label><input type="checkbox" id="auto" class="sw" checked></div>
+  </dialog>
   <div id="toast" role="status" hidden></div>
 
   <script>
@@ -520,7 +673,7 @@
 
     const WORDS = `château chameau chapeau chaise chaîne chat chaud chocolat cheval chemise chien chou bouche bouteille bateau ballon beau bureau brun brise bras blanc blé bleu cou coup cœur café cadeau cahier camion carotte cerise cerf ceinture citron cinéma cloche clé clou crabe crayon cri crêpe croix crocodile drap drôle dragon dent doigt dos fleur fleuve flamme fromage fraise français frère frite gâteau gare garçon girafe gilet glace gris grand gros grenouille guitare guerre gnome singe jardin jambe jaune jouet kilo koala lapin lait lune livre lion lundi main maison mer mouton nez nuit neige nuage orange pain papa pomme poule plume plage pluie poisson prix propre photo phoque pharmacie quatre question quai quand radio rat rouge robe riz sac sel soleil sucre scie science stylo stratégie table tête tigre train trois tronc tracteur thé théâtre thon valise vache vélo vert voiture vrai zèbre zéro zoo`.split(' ');
 
-    const st = { l: RIGHT.length && LEFT.findIndex(x => x.l === 'CH'), r: RIGHT.findIndex(x => x.l === 'EAU'), rate: 0.7, voice: null, timer: null, hist: [] };
+    const st = { l: RIGHT.length && LEFT.findIndex(x => x.l === 'CH'), r: RIGHT.findIndex(x => x.l === 'EAU'), rate: 0.4, voice: null, timer: null, hist: [] };
 
     function build(id, items, side) {
       const w = $(id);
@@ -556,6 +709,7 @@
       const kids = $(wheels[side]).children;
       if (st[side] === i && kids[i].classList.contains('on')) return;
       st[side] = i;
+      if (navigator.vibrate) navigator.vibrate(6);
       [...kids].forEach((k, j) => { k.classList.toggle('on', j === i); k.setAttribute('aria-selected', j === i); });
       render();
       clearTimeout(st.timer);
@@ -617,7 +771,7 @@
         c.addEventListener('click', () => speak(w));
         box.appendChild(c);
       });
-      $('note').textContent = `${a.t} ${a.l} → /${li}/, associé à : ${b.t.toLowerCase()} ${b.l} → /${b.i}/.${rule}`;
+
     }
 
     function settle() {
@@ -635,7 +789,7 @@
         hb.appendChild(c);
       });
       $('histBox').hidden = false;
-      if ($('auto').checked) speak(info().say);
+      if ($('auto').checked && st.ready) speak(info().say);
     }
 
     /* Synthèse vocale */
@@ -675,6 +829,15 @@
     build('lw', LEFT, 'l'); build('rw', RIGHT, 'r');
     icon(); initVoices();
     $('theme').addEventListener('click', toggleTheme);
+    const dlg = $('dlg');
+    function savePrefs() { try { localStorage.setItem('atelier-prefs', JSON.stringify({ rate: st.rate, auto: $('auto').checked })); } catch (e) { } }
+    try { const p = JSON.parse(localStorage.getItem('atelier-prefs') || '{}'); if (p.rate) st.rate = p.rate; if ('auto' in p) $('auto').checked = p.auto; } catch (e) { }
+    [...$('speed').children].forEach(x => x.setAttribute('aria-pressed', parseFloat(x.dataset.r) === st.rate));
+    $('auto').addEventListener('change', savePrefs);
+    $('gear').addEventListener('click', () => dlg.showModal());
+    $('close').addEventListener('click', () => dlg.close());
+    dlg.addEventListener('click', e => { const r = dlg.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dlg.close(); });
+    document.addEventListener('pointerdown', () => { if ('speechSynthesis' in window) speechSynthesis.speak(new SpeechSynthesisUtterance('')); }, { once: true });
     $('play').addEventListener('click', () => speak(info().say));
     $('rnd').addEventListener('click', () => {
       go('l', Math.floor(Math.random() * LEFT.length));
@@ -682,11 +845,12 @@
     });
     $('speed').addEventListener('click', e => {
       const b = e.target.closest('button'); if (!b) return;
-      st.rate = parseFloat(b.dataset.r);
+      st.rate = parseFloat(b.dataset.r); savePrefs();
       [...$('speed').children].forEach(x => x.setAttribute('aria-pressed', x === b));
     });
     requestAnimationFrame(() => {
       go('l', st.l, true); go('r', st.r, true);
+      setTimeout(() => st.ready = true, 1200);
       st.l = st.r = -1; fx('l'); fx('r'); set('l', LEFT.findIndex(x => x.l === 'CH')); set('r', RIGHT.findIndex(x => x.l === 'EAU'));
     });
   </script>
