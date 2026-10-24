@@ -1,0 +1,831 @@
+
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f5f5f2">
+    <title>Atelier des Sons Français</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    },
+                    colors: {
+                        sage: {
+                            50: '#f0f4ef',
+                            100: '#e1e9df',
+                            200: '#c8d7c5',
+                            400: '#91ad91',
+                            500: '#789778',
+                            600: '#617f62',
+                            700: '#4d6750',
+                            800: '#354a38',
+                            900: '#253529'
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        :root {
+            color-scheme: light;
+            --page: #f5f5f2;
+            --surface: #ffffff;
+            --surface-subtle: #efefeb;
+            --text: #343a36;
+            --muted: #858b85;
+            --border: #e6e7e1;
+            --accent: #789778;
+            --selection: #e5ebe2;
+            --selection-text: #405943;
+            --picker-fade: 245, 245, 242;
+        }
+
+        .dark {
+            color-scheme: dark;
+            --page: #1d201e;
+            --surface: #262a27;
+            --surface-subtle: #303531;
+            --text: #e5e9e4;
+            --muted: #969e96;
+            --border: #383e39;
+            --accent: #9bb49a;
+            --selection: #363d37;
+            --selection-text: #dce8da;
+            --picker-fade: 29, 32, 30;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            background: var(--page);
+        }
+
+        body {
+            min-height: 100%;
+            background: var(--page);
+            color: var(--text);
+            font-family: Inter, sans-serif;
+            transition: background-color 180ms ease, color 180ms ease;
+        }
+
+        /* Header totalement transparent */
+        header {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+
+        .theme-button {
+            width: 42px;
+            height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: transparent;
+            color: var(--text);
+            cursor: pointer;
+            transition: background-color 160ms ease, transform 160ms ease;
+        }
+
+        .theme-button:hover {
+            background: var(--surface-subtle);
+        }
+
+        .theme-button:active {
+            transform: scale(.94);
+        }
+
+        .surface {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            box-shadow: 0 5px 22px rgba(25, 35, 25, .035);
+        }
+
+        .subtle-surface {
+            background: var(--surface-subtle);
+            border: 1px solid var(--border);
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        .accent-text {
+            color: var(--accent);
+        }
+
+        .picker-scroll {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            scroll-snap-type: y mandatory;
+            overscroll-behavior-y: contain;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
+        }
+
+        .picker-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .picker-item {
+            height: 56px;
+            min-height: 56px;
+            scroll-snap-align: center;
+            scroll-snap-stop: always;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: opacity 140ms ease, transform 140ms ease;
+        }
+
+        .picker-mask {
+            pointer-events: none;
+            background: linear-gradient(
+                to bottom,
+                rgba(var(--picker-fade), .98) 0%,
+                rgba(var(--picker-fade), 0) 34%,
+                rgba(var(--picker-fade), 0) 66%,
+                rgba(var(--picker-fade), .98) 100%
+            );
+        }
+
+        .picker-selection {
+            position: absolute;
+            left: 8px;
+            right: 8px;
+            top: 50%;
+            height: 56px;
+            transform: translateY(-50%);
+            border-radius: 16px;
+            background: var(--selection);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .picker-item .item-text {
+            color: var(--muted);
+            font-weight: 500;
+            transition: color 140ms ease;
+        }
+
+        .shortcut {
+            flex: 0 0 auto;
+            min-width: 34px;
+            padding: 7px 10px;
+            border-radius: 10px;
+            background: var(--surface-subtle);
+            color: var(--text);
+            transition: background-color 150ms ease;
+        }
+
+        .shortcut:hover {
+            background: var(--selection);
+            color: var(--selection-text);
+        }
+
+        .listen-button {
+            background: var(--accent);
+            color: #fff;
+            transition: filter 150ms ease, transform 150ms ease;
+        }
+
+        .listen-button:hover {
+            filter: brightness(.95);
+        }
+
+        .listen-button:active {
+            transform: scale(.97);
+        }
+
+        .note-box {
+            background: var(--surface-subtle);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        button:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 3px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                transition-duration: .01ms !important;
+                animation-duration: .01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col font-sans">
+
+    <!-- Header transparent : seul le bouton de thème reste visible -->
+    <header class="w-full px-4 md:px-8 py-3 flex items-center justify-end">
+        <button
+            id="themeToggle"
+            type="button"
+            onclick="toggleDarkMode()"
+            class="theme-button"
+            title="Basculer entre le mode clair et le mode sombre"
+            aria-label="Activer le mode sombre"
+            aria-pressed="false"
+        >
+            <span id="themeIcon" aria-hidden="true">☾</span>
+        </button>
+    </header>
+
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 pt-3 pb-8 md:px-6 flex flex-col items-center justify-center gap-6">
+
+        <div class="text-center">
+            <h2 class="text-xs md:text-sm font-semibold uppercase tracking-wider muted">
+                Faites défiler les deux roues pour assembler les sons
+            </h2>
+        </div>
+
+        <!-- Les deux roulettes -->
+        <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+
+            <!-- Roulette consonnes -->
+            <section class="surface rounded-3xl p-4 relative overflow-hidden flex flex-col items-center">
+
+                <div class="w-full flex items-center justify-between pb-3 border-b mb-3" style="border-color:var(--border)">
+                    <span class="text-xs font-semibold uppercase tracking-wider accent-text">
+                        1. Départ / Consonnes
+                    </span>
+                    <span
+                        id="leftCategoryBadge"
+                        class="text-[10px] font-semibold px-2.5 py-1 rounded-full"
+                        style="background:var(--surface-subtle);color:var(--muted)"
+                    >
+                        Graphème
+                    </span>
+                </div>
+
+                <div class="relative w-full h-56 flex items-center justify-center">
+                    <div class="picker-selection"></div>
+                    <div class="picker-mask absolute inset-0 z-20"></div>
+
+                    <div
+                        id="leftWheel"
+                        class="picker-scroll w-full h-full overflow-y-scroll text-center relative z-0"
+                        aria-label="Sélectionner une consonne ou un groupe consonantique"
+                        role="listbox"
+                    ></div>
+                </div>
+            </section>
+
+            <!-- Roulette voyelles -->
+            <section class="surface rounded-3xl p-4 relative overflow-hidden flex flex-col items-center">
+
+                <div class="w-full flex items-center justify-between pb-3 border-b mb-3" style="border-color:var(--border)">
+                    <span class="text-xs font-semibold uppercase tracking-wider accent-text">
+                        2. Voyelles / Sons vocaliques
+                    </span>
+                    <span
+                        id="rightCategoryBadge"
+                        class="text-[10px] font-semibold px-2.5 py-1 rounded-full"
+                        style="background:var(--surface-subtle);color:var(--muted)"
+                    >
+                        Voyelle
+                    </span>
+                </div>
+
+                <div class="relative w-full h-56 flex items-center justify-center">
+                    <div class="picker-selection"></div>
+                    <div class="picker-mask absolute inset-0 z-20"></div>
+
+                    <div
+                        id="rightWheel"
+                        class="picker-scroll w-full h-full overflow-y-scroll text-center relative z-0 text-black dark:text-white"
+                        aria-label="Sélectionner une voyelle ou un son vocalique"
+                        role="listbox"
+                    ></div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Résultat -->
+        <section class="surface w-full rounded-3xl p-5 md:p-7 space-y-5">
+
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pb-4 border-b" style="border-color:var(--border)">
+                <div class="text-center sm:text-left">
+                    <span class="text-xs font-semibold uppercase tracking-widest accent-text">
+                        Combinaison formée
+                    </span>
+                    <div
+                        id="grandResultTitle"
+                        class="text-5xl md:text-7xl font-extrabold tracking-tight pt-1"
+                        aria-live="polite"
+                    >
+                        CHEAU
+                    </div>
+                </div>
+
+                <button
+                    type="button"
+                    onclick="playCombinationAudio()"
+                    class="listen-button px-6 py-3.5 font-semibold text-sm rounded-2xl flex items-center gap-3"
+                >
+                    <span class="text-xl" aria-hidden="true">▶</span>
+                    <span>Écouter</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 gap-3">
+                <div class="subtle-surface p-4 rounded-2xl">
+                    <div class="text-[11px] font-semibold uppercase tracking-wider muted mb-2">
+                        Mots exemples
+                    </div>
+                    <div id="breakdownWords" class="text-sm font-medium">
+                        Château, Chameau, Chapeau
+                    </div>
+                </div>
+            </div>
+
+            <div
+                id="pedagogicalNote"
+                class="note-box p-4 rounded-2xl text-sm leading-relaxed flex items-start gap-3"
+            >
+                <span class="text-base" aria-hidden="true">💡</span>
+                <div>
+                    <strong>Structure :</strong>
+                    Digramme consonantique CH (/ʃ/) associé au trigramme vocalique EAU (/o/).
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div
+        id="toast"
+        class="hidden fixed bottom-5 right-5 z-50 px-4 py-3 rounded-2xl shadow-lg text-sm"
+        style="background:var(--surface);color:var(--text);border:1px solid var(--border)"
+        role="status"
+        aria-live="polite"
+    >
+        <span id="toastMsg">Message</span>
+    </div>
+
+    <script>
+        /*
+         * Données phonétiques
+         */
+
+        const LEFT_ITEMS = [
+            { id: 'A', label: 'A', type: 'Voyelle de départ', ipa: '[a]' },
+            { id: 'B', label: 'B', type: 'Consonne simple', ipa: '[b]' },
+            { id: 'BL', label: 'BL', type: 'Groupe consonantique', ipa: '[bl]' },
+            { id: 'BR', label: 'BR', type: 'Groupe consonantique', ipa: '[bʁ]' },
+            { id: 'C', label: 'C', type: 'Consonne variable', ipa: '[k]/[s]' },
+            { id: 'CH', label: 'CH', type: 'Digramme consonantique', ipa: '[ʃ]' },
+            { id: 'CL', label: 'CL', type: 'Groupe consonantique', ipa: '[kl]' },
+            { id: 'CR', label: 'CR', type: 'Groupe consonantique', ipa: '[kʁ]' },
+            { id: 'D', label: 'D', type: 'Consonne simple', ipa: '[d]' },
+            { id: 'DR', label: 'DR', type: 'Groupe consonantique', ipa: '[dʁ]' },
+            { id: 'F', label: 'F', type: 'Consonne simple', ipa: '[f]' },
+            { id: 'FL', label: 'FL', type: 'Groupe consonantique', ipa: '[fl]' },
+            { id: 'FR', label: 'FR', type: 'Groupe consonantique', ipa: '[fʁ]' },
+            { id: 'G', label: 'G', type: 'Consonne variable', ipa: '[ɡ]/[ʒ]' },
+            { id: 'GL', label: 'GL', type: 'Groupe consonantique', ipa: '[ɡl]' },
+            { id: 'GN', label: 'GN', type: 'Digramme consonantique', ipa: '[ɲ]' },
+            { id: 'GR', label: 'GR', type: 'Groupe consonantique', ipa: '[ɡʁ]' },
+            { id: 'GU', label: 'GU', type: 'Digramme consonantique', ipa: '[ɡ]' },
+            { id: 'J', label: 'J', type: 'Consonne simple', ipa: '[ʒ]' },
+            { id: 'K', label: 'K', type: 'Consonne simple', ipa: '[k]' },
+            { id: 'L', label: 'L', type: 'Consonne simple', ipa: '[l]' },
+            { id: 'M', label: 'M', type: 'Consonne simple', ipa: '[m]' },
+            { id: 'N', label: 'N', type: 'Consonne simple', ipa: '[n]' },
+            { id: 'P', label: 'P', type: 'Consonne simple', ipa: '[p]' },
+            { id: 'PH', label: 'PH', type: 'Digramme consonantique', ipa: '[f]' },
+            { id: 'PL', label: 'PL', type: 'Groupe consonantique', ipa: '[pl]' },
+            { id: 'PR', label: 'PR', type: 'Groupe consonantique', ipa: '[pʁ]' },
+            { id: 'QU', label: 'QU', type: 'Digramme consonantique', ipa: '[k]' },
+            { id: 'R', label: 'R', type: 'Consonne simple', ipa: '[ʁ]' },
+            { id: 'S', label: 'S', type: 'Consonne simple', ipa: '[s]/[z]' },
+            { id: 'SC', label: 'SC', type: 'Groupe consonantique', ipa: '[sk]' },
+            { id: 'SS', label: 'SS', type: 'Digramme consonantique', ipa: '[s]' },
+            { id: 'STR', label: 'STR', type: 'Trigramme consonantique', ipa: '[stʁ]' },
+            { id: 'T', label: 'T', type: 'Consonne simple', ipa: '[t]' },
+            { id: 'TH', label: 'TH', type: 'Digramme consonantique', ipa: '[t]' },
+            { id: 'TR', label: 'TR', type: 'Groupe consonantique', ipa: '[tʁ]' },
+            { id: 'V', label: 'V', type: 'Consonne simple', ipa: '[v]' },
+            { id: 'VR', label: 'VR', type: 'Groupe consonantique', ipa: '[vʁ]' },
+            { id: 'Z', label: 'Z', type: 'Consonne simple', ipa: '[z]' }
+        ];
+
+        const RIGHT_ITEMS = [
+            { id: 'A', label: 'A', type: 'Voyelle simple', ipa: '[a]' },
+            { id: 'E', label: 'E', type: 'Voyelle simple', ipa: '[ə]' },
+            { id: 'É', label: 'É', type: 'Voyelle accentuée', ipa: '[e]' },
+            { id: 'È', label: 'È', type: 'Voyelle accentuée', ipa: '[ɛ]' },
+            { id: 'Ê', label: 'Ê', type: 'Voyelle accentuée', ipa: '[ɛ]' },
+            { id: 'I', label: 'I', type: 'Voyelle simple', ipa: '[i]' },
+            { id: 'O', label: 'O', type: 'Voyelle simple', ipa: '[o]' },
+            { id: 'U', label: 'U', type: 'Voyelle simple', ipa: '[y]' },
+            { id: 'Y', label: 'Y', type: 'Voyelle simple', ipa: '[i]' },
+            { id: 'OU', label: 'OU', type: 'Graphème composé', ipa: '[u]' },
+            { id: 'OI', label: 'OI', type: 'Graphème composé', ipa: '[wa]' },
+            { id: 'AI', label: 'AI', type: 'Graphème composé', ipa: '[ɛ]' },
+            { id: 'EI', label: 'EI', type: 'Graphème composé', ipa: '[ɛ]' },
+            { id: 'AU', label: 'AU', type: 'Graphème composé', ipa: '[o]' },
+            { id: 'EAU', label: 'EAU', type: 'Graphème composé', ipa: '[o]' },
+            { id: 'EU', label: 'EU', type: 'Graphème composé', ipa: '[ø]' },
+            { id: 'ŒU', label: 'ŒU', type: 'Graphème composé', ipa: '[œ]' },
+            { id: 'UI', label: 'UI', type: 'Semi-voyelle', ipa: '[ɥi]' },
+            { id: 'AN', label: 'AN', type: 'Son nasal', ipa: '[ɑ̃]' },
+            { id: 'EN', label: 'EN', type: 'Son nasal', ipa: '[ɑ̃]' },
+            { id: 'ON', label: 'ON', type: 'Son nasal', ipa: '[ɔ̃]' },
+            { id: 'IN', label: 'IN', type: 'Son nasal', ipa: '[ɛ̃]' },
+            { id: 'AIN', label: 'AIN', type: 'Son nasal', ipa: '[ɛ̃]' },
+            { id: 'UN', label: 'UN', type: 'Son nasal', ipa: '[œ̃]' }
+        ];
+
+        const DICTIONARY = {
+            'CHEAU': { ipa: '[ʃo]', words: 'Château, Chameau, Chapeau', note: 'Digramme CH (/ʃ/) + trigramme EAU (/o/).' },
+            'BRAIN': { ipa: '[bʁɛ̃]', words: 'Brain, Cerveau (familier)', note: 'Groupe BR + son nasal AIN (/ɛ̃/).' },
+            'COU': { ipa: '[ku]', words: 'Cou, Coup, Coudre', note: 'Devant OU, le C se prononce [k].' },
+            'CROU': { ipa: '[kʁu]', words: 'Croupir, Croute', note: 'Groupe CR + son vocalique OU (/u/).' },
+            'CRAN': { ipa: '[kʁɑ̃]', words: 'Cran, Crâne, Crapaud', note: 'Groupe CR + son nasal AN (/ɑ̃/).' },
+            'CHAI': { ipa: '[ʃɛ]', words: 'Chaise, Chaîne', note: 'CH (/ʃ/) + AI (/ɛ/).' },
+            'TRAI': { ipa: '[tʁɛ]', words: 'Train, Traire, Trait', note: 'Groupe TR + AI (/ɛ/).' },
+            'TROI': { ipa: '[tʁwa]', words: 'Trois, Troisième', note: 'Groupe TR + OI (/wa/).' },
+            'PHO': { ipa: '[fo]', words: 'Photo, Phoque', note: 'PH se prononce [f].' },
+            'STRA': { ipa: '[stʁa]', words: 'Stratégie, Strate', note: 'Groupe STR + A.' },
+            'BOU': { ipa: '[bu]', words: 'Bouche, Bouteille', note: 'B + graphème OU (/u/).' },
+            'BA': { ipa: '[ba]', words: 'Bateau, Ballon', note: 'B + voyelle simple A.' },
+            'BEAU': { ipa: '[bo]', words: 'Beau, Beauté', note: 'B + trigramme EAU (/o/).' }
+        };
+
+        let state = {
+            selectedLeft: 'CH',
+            selectedRight: 'EAU',
+            speechSpeed: 0.5,
+            selectedVoice: null,
+            isDarkMode: false
+        };
+
+        /*
+         * Initialisation
+         */
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initSpeechSynthesis();
+            renderLeftWheel();
+            renderRightWheel();
+
+            applyTheme(false);
+
+            requestAnimationFrame(() => {
+                scrollToLeftItem('CH', 'auto');
+                scrollToRightItem('EAU', 'auto');
+
+                bindPickerEvents('leftWheel', onLeftWheelScroll);
+                bindPickerEvents('rightWheel', onRightWheelScroll);
+            });
+        });
+
+        /*
+         * Mode clair / sombre
+         */
+
+        function applyTheme(isDark) {
+            state.isDarkMode = isDark;
+            document.documentElement.classList.toggle('dark', isDark);
+
+            const icon = document.getElementById('themeIcon');
+            const button = document.getElementById('themeToggle');
+
+            icon.textContent = isDark ? '☀' : '☾';
+            button.setAttribute('aria-pressed', String(isDark));
+            button.setAttribute(
+                'aria-label',
+                isDark ? 'Activer le mode clair' : 'Activer le mode sombre'
+            );
+
+            document.querySelector('meta[name="theme-color"]')
+                .setAttribute('content', isDark ? '#1d201e' : '#f5f5f2');
+        }
+
+        function toggleDarkMode() {
+            applyTheme(!state.isDarkMode);
+        }
+
+        /*
+         * Synthèse vocale
+         */
+
+        function initSpeechSynthesis() {
+            if (!('speechSynthesis' in window)) return;
+
+            const loadVoices = () => {
+                const voices = window.speechSynthesis.getVoices();
+                const frenchVoice = voices.find(voice =>
+                    voice.lang.toLowerCase().startsWith('fr')
+                );
+
+                if (frenchVoice) {
+                    state.selectedVoice = frenchVoice;
+                }
+            };
+
+            loadVoices();
+            window.speechSynthesis.onvoiceschanged = loadVoices;
+        }
+
+        function speak(text) {
+            if (!('speechSynthesis' in window)) {
+                showToast('Synthèse vocale non disponible');
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'fr-FR';
+            utterance.rate = state.speechSpeed;
+
+            if (state.selectedVoice) {
+                utterance.voice = state.selectedVoice;
+            }
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        /*
+         * Création des éléments des roulettes
+         */
+
+        function createPickerItem(item, side) {
+            const div = document.createElement('div');
+            div.id = `${side}-item-${item.id}`;
+            div.className = 'picker-item';
+            div.setAttribute('role', 'option');
+            div.setAttribute('aria-label', `${item.label}, ${item.ipa}`);
+            div.dataset.itemId = item.id;
+
+            div.innerHTML = `
+                <div class="flex items-center justify-center gap-3">
+                    <span class="text-2xl md:text-3xl font-semibold tracking-tight item-text text-black dark:text-white">${item.label}</span>
+                </div>
+            `;
+
+            div.addEventListener('click', () => {
+                if (side === 'left') {
+                    scrollToLeftItem(item.id);
+                } else {
+                    scrollToRightItem(item.id);
+                }
+                speak(item.id);
+            });
+
+            return div;
+        }
+
+        function renderLeftWheel() {
+            const container = document.getElementById('leftWheel');
+            container.innerHTML = '';
+
+            LEFT_ITEMS.forEach(item => {
+                container.appendChild(createPickerItem(item, 'left'));
+            });
+
+            updateWheelVisuals('leftWheel', LEFT_ITEMS, state.selectedLeft);
+        }
+
+        function renderRightWheel() {
+            const container = document.getElementById('rightWheel');
+            container.innerHTML = '';
+
+            RIGHT_ITEMS.forEach(item => {
+                container.appendChild(createPickerItem(item, 'right'));
+            });
+
+            updateWheelVisuals('rightWheel', RIGHT_ITEMS, state.selectedRight);
+        }
+
+        /*
+         * Défilement et sélection des sons
+         */
+
+        function scrollToItem(side, id, behavior = 'smooth') {
+            const container = document.getElementById(
+                side === 'left' ? 'leftWheel' : 'rightWheel'
+            );
+            const el = document.getElementById(`${side}-item-${id}`);
+
+            if (!container || !el) return;
+
+            const containerRect = container.getBoundingClientRect();
+            const itemRect = el.getBoundingClientRect();
+
+            const itemTop = itemRect.top - containerRect.top + container.scrollTop;
+            const targetTop = itemTop - (container.clientHeight / 2) + (el.offsetHeight / 2);
+
+            container.scrollTo({
+                top: targetTop,
+                behavior
+            });
+
+            if (side === 'left') {
+                state.selectedLeft = id;
+                updateWheelVisuals('leftWheel', LEFT_ITEMS, id);
+            } else {
+                state.selectedRight = id;
+                updateWheelVisuals('rightWheel', RIGHT_ITEMS, id);
+            }
+
+            updateResultDisplay();
+        }
+
+        function scrollToLeftItem(id, behavior = 'smooth') {
+            scrollToItem('left', id, behavior);
+        }
+
+        function scrollToRightItem(id, behavior = 'smooth') {
+            scrollToItem('right', id, behavior);
+        }
+
+        function bindPickerEvents(wheelId, callback) {
+            const wheel = document.getElementById(wheelId);
+            let timeout = null;
+
+            wheel.addEventListener('scroll', () => {
+                clearTimeout(timeout);
+                timeout = setTimeout(callback, 100);
+            }, { passive: true });
+        }
+
+        function getClosestItem(container, items, side) {
+            const containerRect = container.getBoundingClientRect();
+            const centerY = containerRect.top + container.clientHeight / 2;
+
+            let closest = items[0];
+            let minDistance = Infinity;
+
+            items.forEach(item => {
+                const el = document.getElementById(`${side}-item-${item.id}`);
+                if (!el) return;
+
+                const rect = el.getBoundingClientRect();
+                const itemCenter = rect.top + rect.height / 2;
+                const distance = Math.abs(centerY - itemCenter);
+
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closest = item;
+                }
+            });
+
+            return closest;
+        }
+
+        function onLeftWheelScroll() {
+            const container = document.getElementById('leftWheel');
+            const closest = getClosestItem(container, LEFT_ITEMS, 'left');
+
+            if (closest && state.selectedLeft !== closest.id) {
+                state.selectedLeft = closest.id;
+                updateWheelVisuals('leftWheel', LEFT_ITEMS, closest.id);
+                updateResultDisplay();
+            }
+        }
+
+        function onRightWheelScroll() {
+            const container = document.getElementById('rightWheel');
+            const closest = getClosestItem(container, RIGHT_ITEMS, 'right');
+
+            if (closest && state.selectedRight !== closest.id) {
+                state.selectedRight = closest.id;
+                updateWheelVisuals('rightWheel', RIGHT_ITEMS, closest.id);
+                updateResultDisplay();
+            }
+        }
+
+        function updateWheelVisuals(wheelId, items, activeId) {
+            const side = wheelId === 'leftWheel' ? 'left' : 'right';
+
+            items.forEach(item => {
+                const el = document.getElementById(`${side}-item-${item.id}`);
+                if (!el) return;
+
+                const text = el.querySelector('.item-text');
+                const isActive = item.id === activeId;
+
+                el.style.opacity = isActive ? '1' : '0.42';
+                el.style.transform = isActive ? 'scale(1.08)' : 'scale(0.9)';
+                el.setAttribute('aria-selected', String(isActive));
+
+                if (text) {
+                    text.style.color = isActive
+                        ? 'var(--selection-text)'
+                        : 'var(--muted)';
+                    text.style.fontWeight = isActive ? '750' : '500';
+                }
+            });
+
+            const activeItem = items.find(item => item.id === activeId);
+
+            if (activeItem) {
+                const badgeId = side === 'left'
+                    ? 'leftCategoryBadge'
+                    : 'rightCategoryBadge';
+
+                document.getElementById(badgeId).textContent = activeItem.type;
+            }
+        }
+
+        /*
+         * Résultat et explication
+         */
+
+        function updateResultDisplay() {
+            const combo = state.selectedLeft + state.selectedRight;
+            document.getElementById('grandResultTitle').textContent = combo;
+
+            const data = DICTIONARY[combo] || {
+                ipa: `[${estimateIPA(combo)}]`,
+                words: `${combo}…`,
+                note: `Combinaison de ${state.selectedLeft} et du son vocalique ${state.selectedRight}.`
+            };
+
+            document.getElementById('breakdownWords').textContent = data.words;
+
+            document.getElementById('pedagogicalNote').innerHTML = `
+                <span class="text-base" aria-hidden="true">💡</span>
+                <div>
+                    <strong>Observation :</strong> ${data.note}
+                </div>
+            `;
+        }
+
+        function playCombinationAudio() {
+            speak(state.selectedLeft + state.selectedRight);
+        }
+
+        function invertSelection() {
+            const left = state.selectedLeft;
+            const right = state.selectedRight;
+
+            if (LEFT_ITEMS.some(item => item.id === right)) {
+                scrollToLeftItem(right);
+            }
+
+            if (RIGHT_ITEMS.some(item => item.id === left)) {
+                scrollToRightItem(left);
+            }
+
+            showToast('Ordre réorganisé');
+        }
+
+        /*
+         * Estimation phonétique simplifiée
+         */
+
+        function estimateIPA(text) {
+            return text.toLowerCase()
+                .replace(/ch/g, 'ʃ')
+                .replace(/ph/g, 'f')
+                .replace(/eau|au/g, 'o')
+                .replace(/ou/g, 'u')
+                .replace(/oi/g, 'wa')
+                .replace(/an|en/g, 'ɑ̃')
+                .replace(/on/g, 'ɔ̃')
+                .replace(/in|un|ain/g, 'ɛ̃');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = message;
+            toast.classList.remove('hidden');
+
+            clearTimeout(showToast.timeout);
+            showToast.timeout = setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
