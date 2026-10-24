@@ -5,6 +5,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Atelier des sons français</title>
+  <meta name="description" content="Assemblez consonnes et voyelles pour découvrir et écouter les sons du français.">
+  <meta name="theme-color" content="#f5f5f2">
+  <meta name="application-name" content="Sons français">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Sons français">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔤</text></svg>">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -593,6 +603,12 @@
         font-size: 2.2rem
       }
     }
+      dialog{max-height:calc(100dvh - 24px);overflow:auto}
+    .steps{margin:14px 0 0;padding:0;list-style:none;counter-reset:s;display:grid;gap:12px}
+    .steps li{counter-increment:s;display:flex;gap:12px;align-items:flex-start;font-size:.92rem;line-height:1.45}
+    .steps li::before{content:counter(s);flex:none;width:26px;height:26px;border-radius:50%;background:var(--sel);color:var(--seltext);font-weight:700;font-size:.8rem;display:grid;place-items:center}
+    .lead{margin:0 0 14px;color:var(--muted);font-size:.9rem;line-height:1.5}
+    .seg.full{display:flex}.seg.full button{flex:1;padding:10px 6px}
   </style>
 </head>
 
@@ -600,7 +616,10 @@
   <div class="wrap">
     <header>
       <button class="icon-btn" id="theme" type="button" aria-label="Changer de thème">☾</button>
-      <button class="icon-btn" id="gear" type="button" aria-label="Réglages">⚙️</button>
+      <div style="display:flex;gap:8px">
+        <button class="icon-btn" id="dl" type="button" aria-label="Installer l’application">⬇️</button>
+        <button class="icon-btn" id="gear" type="button" aria-label="Réglages">⚙️</button>
+      </div>
     </header>
     <p class="hint">Faites défiler les deux roues pour former un son</p>
 
@@ -653,6 +672,23 @@
     </div>
     <div class="row"><label for="auto">Lecture automatique<small>Lit le son dès que les roues
           s’arrêtent</small></label><input type="checkbox" id="auto" class="sw" checked></div>
+  </dialog>
+  <dialog id="ins" aria-labelledby="it">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <h2 id="it" style="margin:0;font-size:1.15rem">Installer l’application</h2>
+      <button class="icon-btn" id="insClose" type="button" aria-label="Fermer">✕</button>
+    </div>
+    <p class="lead">Ajoutez l’Atelier à votre écran d’accueil : il s’ouvre en plein écran et fonctionne même sans connexion.</p>
+    <button class="btn main" id="installNow" type="button" style="width:100%;margin-bottom:14px" hidden>⬇ Installer maintenant</button>
+    <div id="insDone" class="lead" hidden>✅ L’application est déjà installée sur cet appareil.</div>
+    <div id="insHow">
+      <div class="seg full" id="plat">
+        <button type="button" data-p="ios" aria-pressed="false">iPhone / iPad</button>
+        <button type="button" data-p="android" aria-pressed="false">Android</button>
+        <button type="button" data-p="desktop" aria-pressed="false">Ordinateur</button>
+      </div>
+      <ol class="steps" id="steps"></ol>
+    </div>
   </dialog>
   <div id="toast" role="status" hidden></div>
 
@@ -816,7 +852,11 @@
       const t = document.documentElement.dataset.theme;
       return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
     }
-    function icon() { $('theme').textContent = isDark() ? '☀' : '☾'; }
+    function icon() {
+      $('theme').textContent = isDark() ? '☀' : '☾';
+      document.querySelector('meta[name="theme-color"]').content = isDark() ? '#1d201e' : '#f5f5f2';
+    }
+    matchMedia('(prefers-color-scheme: dark)').addEventListener('change', icon);
     function toggleTheme() {
       const next = isDark() ? 'light' : 'dark';
       document.documentElement.dataset.theme = next;
@@ -853,6 +893,47 @@
       setTimeout(() => st.ready = true, 1200);
       st.l = st.r = -1; fx('l'); fx('r'); set('l', LEFT.findIndex(x => x.l === 'CH')); set('r', RIGHT.findIndex(x => x.l === 'EAU'));
     });
+
+    /* Installation de la PWA */
+    const STEPS = {
+      ios: ['Ouvrez cette page dans Safari.', 'Touchez le bouton Partager (le carré avec une flèche vers le haut), en bas de l’écran.', 'Faites défiler le menu et touchez « Sur l’écran d’accueil ».', 'Touchez « Ajouter » en haut à droite : l’icône apparaît sur votre écran d’accueil.'],
+      android: ['Ouvrez cette page dans Chrome.', 'Touchez le menu ⋮ en haut à droite.', 'Choisissez « Installer l’application » (ou « Ajouter à l’écran d’accueil »).', 'Confirmez avec « Installer ».'],
+      desktop: ['Dans Chrome ou Edge, cliquez sur l’icône d’installation ⊕ à droite de la barre d’adresse.', 'Cliquez sur « Installer » dans la fenêtre qui s’affiche.', 'Pas d’icône ? Ouvrez le menu ⋮ puis « Installer Atelier des sons français » (Chrome) ou Applications › « Installer ce site en tant qu’application » (Edge).', 'Safari sur Mac : menu Fichier › « Ajouter au Dock ».']
+    };
+    const ua = navigator.userAgent;
+    const platNow = /iphone|ipad|ipod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) ? 'ios' : /android/i.test(ua) ? 'android' : 'desktop';
+    const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+    let deferred = null;
+    function showPlat(p) {
+      [...$('plat').children].forEach(b => b.setAttribute('aria-pressed', b.dataset.p === p));
+      const ol = $('steps'); ol.innerHTML = '';
+      STEPS[p].forEach(t => { const li = document.createElement('li'); li.textContent = t; ol.appendChild(li); });
+    }
+    const ins = $('ins');
+    function openInstall() {
+      $('insDone').hidden = !standalone; $('insHow').hidden = standalone;
+      $('installNow').hidden = standalone || !deferred;
+      showPlat(platNow); ins.showModal();
+    }
+    if (standalone) $('dl').hidden = true;
+    $('dl').addEventListener('click', openInstall);
+    $('insClose').addEventListener('click', () => ins.close());
+    ins.addEventListener('click', e => { const r = ins.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) ins.close(); });
+    $('plat').addEventListener('click', e => { const b = e.target.closest('button'); if (b) showPlat(b.dataset.p); });
+    window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; });
+    $('installNow').addEventListener('click', async () => {
+      if (!deferred) return;
+      deferred.prompt();
+      const { outcome } = await deferred.userChoice;
+      deferred = null; $('installNow').hidden = true;
+      if (outcome === 'accepted') { ins.close(); $('dl').hidden = true; toast('Application installée'); }
+    });
+    window.addEventListener('appinstalled', () => { $('dl').hidden = true; });
+
+    /* PWA : service worker (nécessite https ou localhost) */
+    if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => { }));
+    }
   </script>
 </body>
 
